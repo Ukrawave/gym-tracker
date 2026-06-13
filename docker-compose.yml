@@ -1,17 +1,29 @@
-version: "3.9"
+# Quick local-only stack (no Traefik, no reverse proxy, no TLS).
+# Use this when you want to test the image on a laptop or a homelab box
+# without a fronting proxy. For the production setup behind Traefik,
+# use docker-compose.traefik.yml instead.
 services:
   gym-tracker:
     build: .
+    image: gym-tracker:local
     container_name: gym-tracker
     restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
-      GYM_MEDIA_PATH: /media
       GYM_DB_PATH: /app/data/gym.db
+      # GYM_MEDIA_PATH defaults to /media (baked into the image at build time).
+      # Only set this if you want to override with a host bind-mount.
     volumes:
-      # SQLite DB persistence
+      # SQLite DB persistence — keeps gym.db across container rebuilds.
       - ./data:/app/data
-      # Exercise demo media — bind-mount the Obsidian path read-only.
-      # Adjust the source path to wherever the GIFs/MP4s live on your host.
-      - /home/hermes/Obsidian Vault/Gym/exercise-gifs:/media:ro
+      # OPTIONAL: bind-mount a host directory of GIFs/MP4s if you want to
+      # override the baked /media layer (e.g. live-sync from your Obsidian
+      # vault). Uncomment + edit the source path to enable:
+      # - /home/hermes/Obsidian Vault/Gym/exercise-gifs:/media:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3

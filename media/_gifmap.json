@@ -1,0 +1,218 @@
+{
+  "barbell-bench-press": {
+    "slug": "barbell-bench-press",
+    "page": "https://www.fitnessprogramer.com/exercise/barbell-bench-press/",
+    "gif_url": "https://www.fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bench-Press.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/barbell-bench-press.gif",
+    "bytes": 316421,
+    "ok": true
+  },
+  "barbell-bent-over-row": {
+    "slug": "barbell-bent-over-row",
+    "page": "https://www.fitnessprogramer.com/exercise/barbell-bent-over-row/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bent-Over-Row.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/barbell-bent-over-row.gif",
+    "bytes": 325033,
+    "ok": true
+  },
+  "barbell-curl": {
+    "slug": "barbell-curl",
+    "page": "https://www.fitnessprogramer.com/exercise/barbell-curl/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Curl.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/barbell-curl.gif",
+    "bytes": 284374,
+    "ok": true
+  },
+  "barbell-full-squat": {
+    "slug": "barbell-full-squat",
+    "page": "https://www.fitnessprogramer.com/exercise/barbell-full-squat/",
+    "gif_url": null,
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/barbell-full-squat.gif",
+    "bytes": 304453,
+    "ok": true
+  },
+  "barbell-shoulder-press": {
+    "slug": "barbell-shoulder-press",
+    "page": "https://www.fitnessprogramer.com/exercise/barbell-shoulder-press/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Shoulder-Press.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/barbell-shoulder-press.gif",
+    "bytes": 350184,
+    "ok": true
+  },
+  "chest-dip": {
+    "slug": "chest-dip",
+    "page": "https://www.fitnessprogramer.com/exercise/chest-dip/",
+    "gif_url": null,
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/chest-dip.gif",
+    "bytes": 242369,
+    "ok": true
+  },
+  "dumbbell-fly": {
+    "slug": "dumbbell-fly",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-fly/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Fly.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-fly.gif",
+    "bytes": 359311,
+    "ok": true
+  },
+  "dumbbell-front-raise": {
+    "slug": "dumbbell-front-raise",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-front-raise/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Front-Raise.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-front-raise.gif",
+    "bytes": 234753,
+    "ok": true
+  },
+  "dumbbell-hammer-curl": {
+    "slug": "dumbbell-hammer-curl",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-hammer-curl/",
+    "gif_url": null,
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-hammer-curl.gif",
+    "bytes": 238422,
+    "ok": true
+  },
+  "dumbbell-lateral-raise": {
+    "slug": "dumbbell-lateral-raise",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-lateral-raise/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lateral-Raise.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-lateral-raise.gif",
+    "bytes": 243434,
+    "ok": true
+  },
+  "dumbbell-overhead-triceps-extension": {
+    "slug": "dumbbell-overhead-triceps-extension",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-overhead-triceps-extension/",
+    "gif_url": null,
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-overhead-triceps-extension.gif",
+    "bytes": 177537,
+    "ok": true
+  },
+  "dumbbell-reverse-fly": {
+    "slug": "dumbbell-reverse-fly",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-reverse-fly/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Reverse-Fly.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-reverse-fly.gif",
+    "bytes": 329934,
+    "ok": true
+  },
+  "dumbbell-shoulder-press": {
+    "slug": "dumbbell-shoulder-press",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-shoulder-press/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Shoulder-Press.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-shoulder-press.gif",
+    "bytes": 239459,
+    "ok": true
+  },
+  "dumbbell-shrug": {
+    "slug": "dumbbell-shrug",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-shrug/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/04/Dumbbell-Shrug.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-shrug.gif",
+    "bytes": 274794,
+    "ok": true
+  },
+  "dumbbell-walking-lunge": {
+    "slug": "dumbbell-walking-lunge",
+    "page": "https://www.fitnessprogramer.com/exercise/dumbbell-walking-lunge/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2023/09/dumbbell-lunges.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/dumbbell-walking-lunge.gif",
+    "bytes": 216518,
+    "ok": true
+  },
+  "incline-dumbbell-curl": {
+    "slug": "incline-dumbbell-curl",
+    "page": "https://www.fitnessprogramer.com/exercise/incline-dumbbell-curl/",
+    "gif_url": null,
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/incline-dumbbell-curl.gif",
+    "bytes": 267358,
+    "ok": true
+  },
+  "incline-dumbbell-press": {
+    "slug": "incline-dumbbell-press",
+    "page": "https://www.fitnessprogramer.com/exercise/incline-dumbbell-press/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Incline-Dumbbell-Press.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/incline-dumbbell-press.gif",
+    "bytes": 217241,
+    "ok": true
+  },
+  "lat-pulldown": {
+    "slug": "lat-pulldown",
+    "page": "https://www.fitnessprogramer.com/exercise/lat-pulldown/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Lat-Pulldown.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/lat-pulldown.gif",
+    "bytes": 265497,
+    "ok": true
+  },
+  "leg-extension": {
+    "slug": "leg-extension",
+    "page": "https://www.fitnessprogramer.com/exercise/leg-extension/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/LEG-EXTENSION.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/leg-extension.gif",
+    "bytes": 335004,
+    "ok": true
+  },
+  "leg-press": {
+    "slug": "leg-press",
+    "page": "https://www.fitnessprogramer.com/exercise/leg-press/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2015/11/Leg-Press.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/leg-press.gif",
+    "bytes": 316337,
+    "ok": true
+  },
+  "lying-leg-curl": {
+    "slug": "lying-leg-curl",
+    "page": "https://www.fitnessprogramer.com/exercise/lying-leg-curl/",
+    "gif_url": null,
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/lying-leg-curl.gif",
+    "bytes": 335012,
+    "ok": true
+  },
+  "one-arm-dumbbell-row": {
+    "slug": "one-arm-dumbbell-row",
+    "page": "https://www.fitnessprogramer.com/exercise/one-arm-dumbbell-row/",
+    "gif_url": null,
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/one-arm-dumbbell-row.gif",
+    "bytes": 331813,
+    "ok": true
+  },
+  "romanian-deadlift": {
+    "slug": "romanian-deadlift",
+    "page": "https://www.fitnessprogramer.com/exercise/romanian-deadlift/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Romanian-Deadlift.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/romanian-deadlift.gif",
+    "bytes": 255690,
+    "ok": true
+  },
+  "seated-cable-row": {
+    "slug": "seated-cable-row",
+    "page": "https://www.fitnessprogramer.com/exercise/seated-cable-row/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Cable-Row.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/seated-cable-row.gif",
+    "bytes": 322691,
+    "ok": true
+  },
+  "skull-crusher": {
+    "slug": "skull-crusher",
+    "page": "https://www.fitnessprogramer.com/exercise/skull-crusher/",
+    "gif_url": null,
+    "local": null,
+    "bytes": 0,
+    "ok": false
+  },
+  "standing-calf-raise": {
+    "slug": "standing-calf-raise",
+    "page": "https://www.fitnessprogramer.com/exercise/standing-calf-raise/",
+    "gif_url": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Standing-Calf-Raise.gif",
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/standing-calf-raise.gif",
+    "bytes": 181237,
+    "ok": true
+  },
+  "triceps-pushdown": {
+    "slug": "triceps-pushdown",
+    "page": "https://www.fitnessprogramer.com/exercise/triceps-pushdown/",
+    "gif_url": null,
+    "local": "/home/hermes/Obsidian Vault/Gym/exercise-gifs/triceps-pushdown.gif",
+    "bytes": 296166,
+    "ok": true
+  }
+}

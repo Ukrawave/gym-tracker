@@ -57,40 +57,69 @@ OpenAPI / Swagger docs are auto-generated at `/docs`.
 
 ### Configuration (env vars)
 
-| Var              | Default                                              | Effect                              |
-|------------------|------------------------------------------------------|-------------------------------------|
-| `GYM_MEDIA_PATH` | `/home/hermes/Obsidian Vault/Gym/exercise-gifs`      | Directory served at `/media/...`    |
-| `GYM_DB_PATH`    | `data/gym.db` (relative to CWD)                      | SQLite database file                |
+| Var              | Default              | Effect                              |
+|------------------|----------------------|-------------------------------------|
+| `GYM_MEDIA_PATH` | `/media`             | Directory served at `/media/...`. The Docker image bakes the demo media in at this path; the bare `pip install` workflow falls back to `/home/hermes/Obsidian Vault/Gym/exercise-gifs` if the env var is unset. |
+| `GYM_DB_PATH`    | `data/gym.db` (CWD)  | SQLite database file                |
+| `PORT`           | `8080`               | uvicorn bind port (Docker entrypoint reads this) |
 
-If `GYM_MEDIA_PATH` is missing or empty, the app still boots — exercise pages just show
-a placeholder instead of demo loops. **Bring your own GIFs/MP4s**: the catalog references
+If `GYM_MEDIA_PATH` resolves to a missing directory, the app still boots — exercise pages
+just show a placeholder instead of demo loops. The startup log line `[media] mounted /media -> <path>`
+declares which path actually got mounted. **Bring your own GIFs/MP4s**: the catalog references
 files by slug (e.g. `barbell-bench-press.gif` and `mp4/barbell-bench-press.mp4`).
 A starter slug list is in `app/seed.py`.
 
-## Quickstart — Docker
+## Quickstart — Docker (local / single host, no proxy)
 
 ```bash
 docker compose up -d --build
 ```
 
-The bundled `docker-compose.yml` bind-mounts:
+The bundled `docker-compose.yml` builds the image from this repo and:
 
-- `./data` → `/app/data` (SQLite persistence)
-- `/home/hermes/Obsidian Vault/Gym/exercise-gifs` → `/media:ro`
+- Persists `./data` → `/app/data` (SQLite database file).
+- Exposes port `8080` directly on the host.
+- Serves the demo media from the `/media` layer **baked into the image at build time**
+  (see `media/` in this repo). To override with a live host directory instead — for
+  example to bind-mount your Obsidian vault — uncomment the volume in `docker-compose.yml`
+  and edit the source path.
 
-Adjust the second mount to point at your own GIF directory.
+The image ships with a HEALTHCHECK that probes `/api/health` every 30 s.
 
-For deployment behind Traefik / a reverse proxy, expose port 8080 internally and route
-your hostname to it. Example Traefik labels:
+## Production — Docker behind Traefik
 
-```yaml
-labels:
-  - "traefik.enable=true"
-  - "traefik.http.routers.gym.rule=Host(`gym.example.com`)"
-  - "traefik.http.routers.gym.entrypoints=websecure"
-  - "traefik.http.routers.gym.tls.certresolver=cloudflare"
-  - "traefik.http.services.gym.loadbalancer.server.port=8080"
+For a homelab / production deployment behind Traefik with TLS, use
+`docker-compose.traefik.yml`. It pulls the pre-built image from GHCR
+(`ghcr.io/ukrawave/gym-tracker:latest`), attaches to the existing `proxy` network,
+and adds Traefik labels for the `https` entrypoint with the `cloudflare` certresolver:
+
+```bash
+docker compose -f docker-compose.traefik.yml up -d
 ```
+
+Prereqs on the host:
+
+1. A Traefik instance already running on the `proxy` external Docker network with a
+   `cloudflare` certresolver (DNS-01 wildcard `*.your-domain.com`).
+2. DNS for `gym.<your-domain>.com` resolves to the host (CNAME to the wildcard works).
+3. A persistent host directory for the SQLite DB. Default in the file:
+   `/home/hugo/docker_volumes/gym-tracker/data/`.
+
+Edit the `Host(...)` rule and the volume path to match your environment, then
+deploy via `docker compose` or paste the file into a Portainer stack.
+
+### Building & pushing your own image
+
+If you'd rather build the image yourself instead of pulling `ghcr.io/ukrawave/...`,
+fork the repo and replace the `media/` directory with your own demo GIFs/MP4s
+(same `<slug>.gif` + `mp4/<slug>.mp4` layout — see `media/` for the reference set):
+
+```bash
+docker build -t ghcr.io/<you>/gym-tracker:latest .
+docker push ghcr.io/<you>/gym-tracker:latest
+```
+
+Then edit `docker-compose.traefik.yml` to point at your image.
 
 ## REST API
 
