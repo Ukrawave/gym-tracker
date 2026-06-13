@@ -1,0 +1,49 @@
+# Production stack behind Traefik.
+# This compose file is what runs on the homelab Docker host (10.10.1.4)
+# managed by Portainer. It uses the pre-built image from GHCR so the host
+# doesn't need to clone the repo or run a build.
+#
+# Conventions (matched against the existing homelab Traefik setup):
+#   - external network "proxy" (where Traefik lives)
+#   - entrypoint "https" (Traefik's TLS entrypoint)
+#   - certresolver "cloudflare" (DNS-01 wildcard *.homelab.hmmgha.com)
+#
+# Prereqs on the host:
+#   1. The "proxy" Docker network already exists (it does — Traefik created it).
+#   2. DNS for gym.homelab.hmmgha.com resolves to the host (CNAME to
+#      homelab.hmmgha.com works since the wildcard cert covers it).
+#   3. A persistent host directory for the SQLite DB, e.g.
+#      /home/hugo/docker_volumes/gym-tracker/data/
+services:
+  gym-tracker:
+    image: ghcr.io/ukrawave/gym-tracker:latest
+    container_name: gym-tracker
+    restart: unless-stopped
+    pull_policy: always
+    environment:
+      GYM_DB_PATH: /app/data/gym.db
+      # GYM_MEDIA_PATH defaults to /media (baked into the image).
+    volumes:
+      - /home/hugo/docker_volumes/gym-tracker/data:/app/data
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      # HTTPS router (TLS terminated by Traefik via the cloudflare resolver)
+      - "traefik.http.routers.gym-tracker.rule=Host(`gym.homelab.hmmgha.com`)"
+      - "traefik.http.routers.gym-tracker.entrypoints=https"
+      - "traefik.http.routers.gym-tracker.tls=true"
+      - "traefik.http.routers.gym-tracker.tls.certresolver=cloudflare"
+      # Backend port
+      - "traefik.http.services.gym-tracker.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true
