@@ -99,7 +99,7 @@
                     <div class="seconds" id="timer-seconds">00:00</div>
                     <div class="label">REST</div>
                 </div>
-                <div class="flex gap-2 mt-2 flex-wrap">
+                <div class="row-tight" style="margin-top: 0.75rem; justify-content: center;">
                     <button class="hud-btn" data-preset="60">[ 60s ]</button>
                     <button class="hud-btn" data-preset="90">[ 90s ]</button>
                     <button class="hud-btn warn" data-preset="120">[ 120s ]</button>
@@ -207,11 +207,11 @@
             const accent = kind === 'danger' ? 'danger' : kind === 'warn' ? 'warn' : 'info';
             const html = `
                 <div class="hud-panel-header">
-                    <h2 style="color: var(--${accent === 'info' ? 'info' : accent});">// ${title.toUpperCase()}</h2>
+                    <h2 style="color: var(--${accent === 'info' ? 'info' : accent});">${title}</h2>
                     <span class="led led-${accent === 'info' ? 'cyan' : accent === 'danger' ? 'red' : 'amber'} led-pulse"></span>
                 </div>
                 <div class="hud-value" style="font-size: 1rem; white-space: pre-wrap;">${body}</div>
-                <div class="flex gap-2 mt-4 justify-end flex-wrap">
+                <div class="row-tight" style="margin-top: 1rem; justify-content: flex-end;">
                     ${cancelText ? `<button class="hud-btn" data-dlg-action="cancel">[ ${cancelText.toUpperCase()} ]</button>` : ''}
                     <button class="hud-btn ${accent}" data-dlg-action="confirm">[ ${confirmText.toUpperCase()} ]</button>
                 </div>

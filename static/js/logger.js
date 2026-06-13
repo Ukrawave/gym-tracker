@@ -13,7 +13,7 @@
     function renderPicker() {
         const wrap = $('split-buttons');
         wrap.innerHTML = SPLITS.map(s => `
-            <button class="hud-btn" data-split="${s}">[ ${s.toUpperCase()} ]</button>
+            <button class="hud-btn split-btn" data-split="${s}">[ ${s.toUpperCase()} ]</button>
         `).join('');
         wrap.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', () => startSession(btn.dataset.split));
@@ -57,8 +57,8 @@
     }
 
     function showSession() {
-        $('picker-panel').style.display = 'none';
-        $('session-panel').style.display = '';
+        $('picker-panel').classList.add('hidden');
+        $('session-panel').classList.remove('hidden');
         $('active-category').textContent = ` · ${session.category.toUpperCase()}`;
         $('active-session-id').textContent = session.id;
         $('active-start').textContent = hudUtil.formatTimestamp(session.start_time);
@@ -111,33 +111,32 @@
             `).join('');
         } catch (e) { /* ignore */ }
     }
-
     function renderExerciseRow(row, ridx) {
         const ex = row.exercise;
         const cues = (ex.form_cues || []).slice(0, 2).map(c => `<li>${c}</li>`).join('');
         return `
         <div class="logger-exercise" data-ex-idx="${ridx}">
             <div>
-                <video src="${hudUtil.mediaUrl(ex.media_slug, 'mp4')}" autoplay loop muted playsinline
-                    onerror="this.replaceWith(Object.assign(document.createElement('img'),{src:'${hudUtil.mediaUrl(ex.media_slug,'gif')}',style:'width:100%;aspect-ratio:1/1;object-fit:cover;background:var(--bg);'}))">
+                <video class="ex-media" src="${hudUtil.mediaUrl(ex.media_slug, 'mp4')}" autoplay loop muted playsinline
+                    onerror="this.replaceWith(Object.assign(document.createElement('img'),{src:'${hudUtil.mediaUrl(ex.media_slug,'gif')}',className:'ex-media',alt:'${ex.name}'}))">
                 </video>
-                <div class="mt-1">
+                <div style="margin-top: 0.4rem;">
                     <span class="${hudUtil.muscleTagClass(ex.muscle_group)}">${ex.muscle_group}</span>
                 </div>
                 <ul class="cues">${cues}</ul>
             </div>
             <div>
-                <div class="flex justify-between items-center mb-1">
-                    <h3 class="uppercase-hud text-info">${ex.name}</h3>
+                <div class="ex-title-row">
+                    <h3 class="ex-title">${ex.name}</h3>
                     <button class="hud-btn danger" data-action="remove-exercise" data-ex-idx="${ridx}">[ X ]</button>
                 </div>
                 <div class="hud-label">[ LAST TIME ]</div>
                 <div class="last-time-chips" data-last-chips="${ridx}">…</div>
-                <div class="hud-label">[ SETS ]</div>
+                <div class="hud-label" style="margin-top: 0.5rem;">[ SETS ]</div>
                 <div data-sets="${ridx}">
                     ${row.sets.map((s, sidx) => renderSetRow(s, ridx, sidx)).join('')}
                 </div>
-                <div class="mt-2">
+                <div style="margin-top: 0.5rem;">
                     <button class="hud-btn" data-action="add-set" data-ex-idx="${ridx}">[ + ADD SET ]</button>
                 </div>
             </div>
@@ -303,7 +302,7 @@
     renderPicker();
     const resumed = await loadActiveSession();
     if (!resumed) {
-        $('picker-panel').style.display = '';
-        $('session-panel').style.display = 'none';
+        $('picker-panel').classList.remove('hidden');
+        $('session-panel').classList.add('hidden');
     }
 })();
