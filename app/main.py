@@ -47,6 +47,11 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     def _startup() -> None:
         init_schema()
+        # Storage hygiene: sweep out sessions that never logged any weights.
+        # See app/cleanup.py for the rule. Boot-time so the invariant holds
+        # across restarts, container rebuilds, and DB volume swaps.
+        from app.cleanup import cleanup_empty_sessions
+        cleanup_empty_sessions()
 
     # ---- API routers ----
     app.include_router(exercises_routes.router, prefix="/api", tags=["exercises"])
