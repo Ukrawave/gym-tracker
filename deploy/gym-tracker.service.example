@@ -1,0 +1,49 @@
+# Example systemd user unit for running gym-tracker on a Linux host.
+#
+# Place at: ~/.config/systemd/user/gym-tracker.service
+# Then:
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now gym-tracker
+#   loginctl enable-linger $USER     # so it survives logout/reboot
+#
+# IMPORTANT — quoting Environment= values:
+#
+# systemd splits Environment= on whitespace UNLESS the *value* is wrapped in
+# double quotes. A bare path with spaces like
+#
+#     Environment=GYM_MEDIA_PATH=/home/me/Obsidian Vault/Gym/exercise-gifs
+#
+# silently truncates to "/home/me/Obsidian", which (a) doesn't exist and
+# (b) makes the app fall through to the 404 fallback for every /media/*
+# request, leading to blank exercise images on every page. This is the
+# bug fixed in PR #1; see commit ce17685 for the full post-mortem.
+#
+# The safe form is:
+#
+#     Environment="GYM_MEDIA_PATH=/home/me/Obsidian Vault/Gym/exercise-gifs"
+#
+# Reference: systemd.exec(5) § Environment variables.
+#
+# Adjust paths below for your install and remove this header before
+# committing your own copy.
+
+[Unit]
+Description=Gym Tracker — Mission Control HUD
+After=network.target
+
+[Service]
+Type=simple
+
+# Edit these three paths for your install:
+WorkingDirectory=%h/services/gym-tracker
+Environment=GYM_DB_PATH=%h/services/gym-tracker/data/gym.db
+Environment="GYM_MEDIA_PATH=%h/Obsidian Vault/Gym/exercise-gifs"
+
+# Adjust port if you're running multiple instances on one host:
+ExecStart=%h/services/gym-tracker/.venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8181
+
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=default.target

@@ -35,8 +35,8 @@ process. **No npm, no node_modules, no build step.** Clone, `pip install`, run.
 |-------------|---------------------------------------------------------|--------------------------------------|
 | Backend     | FastAPI + stdlib `sqlite3` + Pydantic                   | Minimal deps, fast, single binary    |
 | Database    | SQLite (one file, foreign keys ON)                      | Single-user, zero admin              |
-| Frontend    | Vanilla HTML5 / ES2020 / Tailwind CDN / Share Tech Mono | No build step, fully static          |
-| Charts      | Chart.js (CDN)                                          | Canvas-based, fits the HUD theme     |
+| Frontend    | Vanilla HTML5 / ES2020 + hand-written `hud.css`         | No build step, no Tailwind CDN dep   |
+| Charts      | Chart.js (CDN, deferred)                                | Canvas-based, fits the HUD theme     |
 | Media       | Read-only volume mount of an exercise-GIF directory     | Works offline at the gym             |
 
 ## Quickstart — local Python
@@ -66,6 +66,24 @@ If `GYM_MEDIA_PATH` is missing or empty, the app still boots — exercise pages 
 a placeholder instead of demo loops. **Bring your own GIFs/MP4s**: the catalog references
 files by slug (e.g. `barbell-bench-press.gif` and `mp4/barbell-bench-press.mp4`).
 A starter slug list is in `app/seed.py`.
+
+> **systemd users — quote paths containing spaces.** A bare
+> `Environment=GYM_MEDIA_PATH=/path with spaces` in a unit file silently truncates at the
+> first whitespace, so every `/media/<slug>.gif` then 404s. Use
+> `Environment="GYM_MEDIA_PATH=/path with spaces"` instead. A ready-to-edit example unit
+> lives at [`deploy/gym-tracker.service.example`](deploy/gym-tracker.service.example) —
+> see the comments in that file for the full post-mortem (PR #1, commit ce17685).
+
+### Running under systemd (Linux host)
+
+Copy and adapt [`deploy/gym-tracker.service.example`](deploy/gym-tracker.service.example)
+to `~/.config/systemd/user/gym-tracker.service`, then:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now gym-tracker
+loginctl enable-linger $USER     # survive logout/reboot
+```
 
 ## Quickstart — Docker
 

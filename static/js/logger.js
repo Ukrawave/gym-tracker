@@ -93,6 +93,8 @@
         wrap.querySelectorAll('[data-action]').forEach(el => {
             el.addEventListener('click', (e) => onLineupAction(e, el));
         });
+        // delegate <video> -> <img> fallback in one place, no inline onerror
+        hudUtil.attachVideoFallback(wrap);
         // load last-sets chips
         lineup.forEach((row, ridx) => loadLastChips(row.exercise.id, ridx));
     }
@@ -114,11 +116,13 @@
     function renderExerciseRow(row, ridx) {
         const ex = row.exercise;
         const cues = (ex.form_cues || []).slice(0, 2).map(c => `<li>${c}</li>`).join('');
+        const exName = hudUtil.attrEscape(ex.name);
+        const slug = hudUtil.attrEscape(ex.media_slug);
         return `
         <div class="logger-exercise" data-ex-idx="${ridx}">
             <div>
                 <video class="ex-media" src="${hudUtil.mediaUrl(ex.media_slug, 'mp4')}" autoplay loop muted playsinline
-                    onerror="this.replaceWith(Object.assign(document.createElement('img'),{src:'${hudUtil.mediaUrl(ex.media_slug,'gif')}',className:'ex-media',alt:'${ex.name}'}))">
+                    data-fallback-slug="${slug}" data-fallback-alt="${exName}" data-fallback-class="ex-media">
                 </video>
                 <div style="margin-top: 0.4rem;">
                     <span class="${hudUtil.muscleTagClass(ex.muscle_group)}">${ex.muscle_group}</span>
@@ -242,9 +246,22 @@
             const ok = await hudConfirm(`Remove ${row.exercise.name} from this session?\n(All saved sets for this exercise in this session will be deleted.)`,
                 { title: 'REMOVE EXERCISE', kind: 'danger', confirmText: 'REMOVE' });
             if (!ok) return;
-            // delete any saved sets for this exercise
+            // delete any saved sets for this exercise. Collect failures so the
+            // user knows the row is *not* clean — silently ignoring meant the
+            // UI dropped the lineup entry but the DB kept orphan rows.
+            const failures = [];
             for (const s of row.sets) if (s.savedId) {
-                try { await api.deleteSet(s.savedId); } catch (e) { /* ignore */ }
+                try { await api.deleteSet(s.savedId); }
+                catch (e) { failures.push({ id: s.savedId, msg: e.message }); }
+            }
+            if (failures.length) {
+                hudAlert(
+                    `Could not delete ${failures.length} saved set(s) for ${row.exercise.name}.\n` +
+                    failures.map(f => `  set #${f.id}: ${f.msg}`).join('\n') +
+                    '\nThe exercise has been left in the lineup so you can retry.',
+                    { kind: 'danger', title: 'REMOVE FAILED' }
+                );
+                return; // keep the exercise in the lineup; do not lie to the user
             }
             lineup.splice(ridx, 1);
             renderLineup();

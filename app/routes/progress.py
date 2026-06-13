@@ -129,6 +129,7 @@ def dashboard() -> dict[str, Any]:
                FROM sessions s
                LEFT JOIN set_entries se ON se.session_id = s.id
                WHERE s.date >= date(?, '-90 days')
+                 AND EXISTS (SELECT 1 FROM set_entries se2 WHERE se2.session_id = s.id)
                GROUP BY s.date""",
             (today_iso,),
         ).fetchall()
