@@ -8,6 +8,7 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+import sqlite3
 
 from app.db import db_conn
 from app.routes.records import reevaluate_prs_for_exercise
@@ -73,7 +74,21 @@ def add_set(session_id: int, payload: SetCreate) -> dict[str, Any]:
                 ),
             )
             new_id = cur.lastrowid
-        except Exception as exc:  # sqlite IntegrityError surfaces here
+        except sqlite3.IntegrityError as exc:
+            # The (session_id, exercise_id, set_index) UNIQUE trip is the only
+            # IntegrityError the user can hit from the UI in practice. Translate
+            # it from raw SQLite gibberish into something actionable.
+            msg = str(exc)
+            if "UNIQUE" in msg and "set_index" in msg:
+                raise HTTPException(
+                    409,
+                    detail=(
+                        f"Set #{payload.set_index} for '{payload.exercise_id}' "
+                        f"is already logged in this session — pick the next set number."
+                    ),
+                )
+            raise HTTPException(400, detail=msg)
+        except Exception as exc:
             raise HTTPException(400, detail=str(exc))
         row = conn.execute("SELECT * FROM set_entries WHERE id = ?", (new_id,)).fetchone()
     # PR re-evaluation lives in its own write transaction.

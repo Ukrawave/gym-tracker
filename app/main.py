@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -55,8 +56,43 @@ def create_app() -> FastAPI:
     app.include_router(records_routes.router, prefix="/api", tags=["records"])
 
     @app.get("/api/health", tags=["meta"])
-    def health() -> dict[str, str]:
-        return {"status": "ok", "service": "gym-tracker"}
+    def health() -> Response:
+        """Liveness + DB-reachable check.
+
+        The frontend HUD polls this every 15s. If the DB blows up we want the
+        LED to turn red, not stay green — so actually round-trip a query.
+        """
+        import json as _json
+        from app.db import db_conn  # local import to avoid cold-import cycles
+
+        try:
+            with db_conn() as conn:
+                ex_count = conn.execute(
+                    "SELECT COUNT(*) AS c FROM exercises"
+                ).fetchone()["c"]
+            body = {
+                "status": "ok",
+                "service": "gym-tracker",
+                "db": "ok",
+                "exercises": int(ex_count),
+            }
+            return Response(
+                content=_json.dumps(body),
+                status_code=200,
+                media_type="application/json",
+            )
+        except Exception as exc:
+            body = {
+                "status": "degraded",
+                "service": "gym-tracker",
+                "db": "error",
+                "detail": str(exc),
+            }
+            return Response(
+                content=_json.dumps(body),
+                status_code=503,
+                media_type="application/json",
+            )
 
     # ---- Media (host-mounted exercise-gifs) ----
     if MEDIA_PATH.exists() and MEDIA_PATH.is_dir():

@@ -55,7 +55,7 @@
         wrap.style.display = '';
         const cs = d.current_session;
         $('active-session-info').textContent =
-            `${cs.category.toUpperCase()} · STARTED ${cs.start_time}`;
+            `${cs.category.toUpperCase()} · STARTED ${hudUtil.formatTimestamp(cs.start_time)}`;
     }
 
     function paintWeekly(d) {

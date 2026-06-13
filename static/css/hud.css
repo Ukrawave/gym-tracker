@@ -316,6 +316,24 @@ body {
     letter-spacing: 0.12em;
 }
 
+/* Mobile: collapse the 6-column set row into a 2x3 stack so phone users
+   logging at the gym don't lose half the controls off-screen. */
+@media (max-width: 540px) {
+    .set-row {
+        grid-template-columns: 28px 1fr 1fr;
+        grid-template-rows: auto auto;
+        row-gap: 0.35rem;
+        column-gap: 0.4rem;
+        padding: 8px 0;
+    }
+    .set-row .idx { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
+    .set-row > input[data-field="weight"] { grid-column: 2; grid-row: 1; }
+    .set-row > input[data-field="reps"]   { grid-column: 3; grid-row: 1; }
+    .set-row > select                      { grid-column: 2 / span 2; grid-row: 2; }
+    .set-row > div                         { grid-column: 1 / span 3; grid-row: 3; display: flex; gap: 0.4rem; }
+    .set-row > div + button                { grid-column: 1 / span 3; grid-row: 4; }
+}
+
 .last-time-chips {
     display: flex;
     flex-wrap: wrap;

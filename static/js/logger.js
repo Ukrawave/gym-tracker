@@ -53,7 +53,7 @@
             const lu = await api.categoryLineup(category);
             lineup = lu.map(ex => ({ exercise: ex, sets: [{ set_index: 1, weight: '', reps: '', status: 'Completed' }] }));
             showSession();
-        } catch (e) { alert('Could not create session: ' + e.message); }
+        } catch (e) { hudAlert('Could not create session: ' + e.message, { kind: 'danger', title: 'INIT FAILURE' }); }
     }
 
     function showSession() {
@@ -61,7 +61,7 @@
         $('session-panel').style.display = '';
         $('active-category').textContent = ` · ${session.category.toUpperCase()}`;
         $('active-session-id').textContent = session.id;
-        $('active-start').textContent = session.start_time;
+        $('active-start').textContent = hudUtil.formatTimestamp(session.start_time);
         $('session-notes').value = session.notes || '';
         ensureTimer();
         populateAddExerciseSelect();
@@ -212,7 +212,7 @@
             const s = row.sets[sidx];
             const w = parseFloat(s.weight);
             const r = parseInt(s.reps, 10);
-            if (isNaN(w) || isNaN(r)) { alert('Need weight and reps'); return; }
+            if (isNaN(w) || isNaN(r)) { hudAlert('Need weight and reps for this set.', { title: 'MISSING FIELDS' }); return; }
             try {
                 const saved = await api.addSet(session.id, {
                     exercise_id: row.exercise.id,
@@ -224,22 +224,25 @@
                 if (window.hudAudio) window.hudAudio.tick();
                 if (timer) timer.start(120);
                 renderLineup();
-            } catch (err) { alert('Save failed: ' + err.message); }
+            } catch (err) { hudAlert('Save failed:\n' + err.message, { kind: 'danger', title: 'SAVE ABORTED' }); }
             return;
         }
         if (action === 'delete-set') {
             const sid = parseInt(el.dataset.setId, 10);
             const sidx = parseInt(el.dataset.setIdx, 10);
-            if (!confirm(`Delete set #${sid}?`)) return;
+            const ok = await hudConfirm(`Delete saved set #${sid}?`, { title: 'DELETE SET', kind: 'danger', confirmText: 'DELETE' });
+            if (!ok) return;
             try {
                 await api.deleteSet(sid);
                 row.sets.splice(sidx, 1);
                 renderLineup();
-            } catch (err) { alert('Delete failed: ' + err.message); }
+            } catch (err) { hudAlert('Delete failed:\n' + err.message, { kind: 'danger', title: 'DELETE FAILED' }); }
             return;
         }
         if (action === 'remove-exercise') {
-            if (!confirm(`Remove ${row.exercise.name} from this session?`)) return;
+            const ok = await hudConfirm(`Remove ${row.exercise.name} from this session?\n(All saved sets for this exercise in this session will be deleted.)`,
+                { title: 'REMOVE EXERCISE', kind: 'danger', confirmText: 'REMOVE' });
+            if (!ok) return;
             // delete any saved sets for this exercise
             for (const s of row.sets) if (s.savedId) {
                 try { await api.deleteSet(s.savedId); } catch (e) { /* ignore */ }
@@ -260,16 +263,18 @@
             });
             if (window.hudAudio) window.hudAudio.sessionEnd();
             location.href = '/';
-        } catch (e) { alert('End-session failed: ' + e.message); }
+        } catch (e) { hudAlert('End-session failed:\n' + e.message, { kind: 'danger', title: 'END FAILED' }); }
     });
 
     $('discard-session') && $('discard-session').addEventListener('click', async () => {
         if (!session) return;
-        if (!confirm('Discard this session entirely?')) return;
+        const ok = await hudConfirm('Discard this session entirely?\nAll sets logged in it will be lost.',
+            { title: 'DISCARD SESSION', kind: 'danger', confirmText: 'DISCARD' });
+        if (!ok) return;
         try {
             await api.deleteSession(session.id);
             location.href = '/';
-        } catch (e) { alert('Discard failed: ' + e.message); }
+        } catch (e) { hudAlert('Discard failed:\n' + e.message, { kind: 'danger', title: 'DISCARD FAILED' }); }
     });
 
     $('add-exercise-btn') && $('add-exercise-btn').addEventListener('click', () => {
@@ -277,6 +282,20 @@
         const id = sel.value;
         const ex = exercisesCache.find(e => e.id === id);
         if (!ex) return;
+        // If this exercise is already in the lineup, just focus on it (and
+        // append a fresh set row to it rather than creating a duplicate
+        // exercise group that will collide on the UNIQUE(session,ex,set_idx)).
+        const existing = lineup.findIndex(r => r.exercise.id === id);
+        if (existing >= 0) {
+            const row = lineup[existing];
+            const nextIdx = (row.sets[row.sets.length - 1]?.set_index || 0) + 1;
+            row.sets.push({ set_index: nextIdx, weight: '', reps: '', status: 'Completed' });
+            renderLineup();
+            // scroll the existing row into view so the user sees what happened
+            const el = document.querySelector(`[data-ex-idx="${existing}"]`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
         lineup.push({ exercise: ex, sets: [{ set_index: 1, weight: '', reps: '', status: 'Completed' }] });
         renderLineup();
     });

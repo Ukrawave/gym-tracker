@@ -181,6 +181,67 @@
         mediaUrl(slug, kind = 'mp4') {
             if (kind === 'mp4') return `/media/mp4/${slug}.mp4`;
             return `/media/${slug}.gif`;
-        }
+        },
+        // Pretty-print server timestamps as local clock for humans.
+        // Accepts ISO strings ('2026-06-13T11:16:36+00:00' or naïve
+        // '2026-06-13T11:16:36'). Returns 'HH:MM // YYYY-MM-DD'.
+        // Falls back to the raw value if it can't parse.
+        formatTimestamp(s) {
+            if (!s) return '—';
+            const raw = String(s);
+            // sqlite CURRENT_TIMESTAMP is naïve UTC; tag with Z so the Date
+            // constructor treats it as UTC instead of local-time-as-UTC.
+            const parsed = new Date(/[zZ]|[+\-]\d{2}:?\d{2}$/.test(raw) ? raw : raw + 'Z');
+            if (Number.isNaN(parsed.getTime())) return raw;
+            const pad = n => String(n).padStart(2, '0');
+            const date = `${parsed.getFullYear()}-${pad(parsed.getMonth()+1)}-${pad(parsed.getDate())}`;
+            const time = `${pad(parsed.getHours())}:${pad(parsed.getMinutes())}`;
+            return `${time} // ${date}`;
+        },
     };
+
+    // ---- HUD-styled alert/confirm (replaces native browser dialogs) ----
+    // Returns a Promise<boolean> for confirm; alert resolves to true.
+    function hudDialog({ title, body, kind = 'info', confirmText = 'OK', cancelText = null }) {
+        return new Promise(resolve => {
+            const accent = kind === 'danger' ? 'danger' : kind === 'warn' ? 'warn' : 'info';
+            const html = `
+                <div class="hud-panel-header">
+                    <h2 style="color: var(--${accent === 'info' ? 'info' : accent});">// ${title.toUpperCase()}</h2>
+                    <span class="led led-${accent === 'info' ? 'cyan' : accent === 'danger' ? 'red' : 'amber'} led-pulse"></span>
+                </div>
+                <div class="hud-value" style="font-size: 1rem; white-space: pre-wrap;">${body}</div>
+                <div class="flex gap-2 mt-4 justify-end flex-wrap">
+                    ${cancelText ? `<button class="hud-btn" data-dlg-action="cancel">[ ${cancelText.toUpperCase()} ]</button>` : ''}
+                    <button class="hud-btn ${accent}" data-dlg-action="confirm">[ ${confirmText.toUpperCase()} ]</button>
+                </div>
+            `;
+            window.hudModal.open(html);
+            const root = document.getElementById('hud-modal-root');
+            const finish = (val) => { window.hudModal.close(); resolve(val); };
+            root.querySelector('[data-dlg-action="confirm"]').addEventListener('click', () => finish(true));
+            const cancelBtn = root.querySelector('[data-dlg-action="cancel"]');
+            if (cancelBtn) cancelBtn.addEventListener('click', () => finish(false));
+            // Backdrop click = cancel (or OK if alert-only)
+            root.addEventListener('click', (e) => {
+                if (e.target === root) finish(cancelText ? false : true);
+            });
+            // Esc to cancel
+            const onKey = (e) => {
+                if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); finish(cancelText ? false : true); }
+                else if (e.key === 'Enter') { document.removeEventListener('keydown', onKey); finish(true); }
+            };
+            document.addEventListener('keydown', onKey);
+        });
+    }
+    window.hudAlert = (body, opts = {}) =>
+        hudDialog({ title: opts.title || 'NOTICE', body, kind: opts.kind || 'info', confirmText: 'ACK' });
+    window.hudConfirm = (body, opts = {}) =>
+        hudDialog({
+            title: opts.title || 'CONFIRM',
+            body,
+            kind: opts.kind || 'warn',
+            confirmText: opts.confirmText || 'PROCEED',
+            cancelText: opts.cancelText || 'ABORT',
+        });
 })();
