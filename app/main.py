@@ -95,13 +95,33 @@ def create_app() -> FastAPI:
             )
 
     # ---- Media (host-mounted exercise-gifs) ----
+    # NOTE: a misconfigured GYM_MEDIA_PATH (typo, unquoted path with spaces in
+    # a systemd unit, missing bind mount) silently 404s every exercise image
+    # and is invisible from the frontend. Log loudly at startup so it surfaces
+    # in `journalctl -u gym-tracker` instead of dying quietly in the browser
+    # console.
     if MEDIA_PATH.exists() and MEDIA_PATH.is_dir():
         app.mount("/media", StaticFiles(directory=str(MEDIA_PATH)), name="media")
+        print(f"[media] mounted /media -> {MEDIA_PATH}", flush=True)
     else:
+        print(
+            f"[media] WARNING: GYM_MEDIA_PATH does not exist or is not a "
+            f"directory: {MEDIA_PATH!s}. All /media/* requests will 404. "
+            f"Check the env var (quote paths containing spaces in systemd "
+            f"units).",
+            flush=True,
+        )
+
         @app.get("/media/{file_path:path}", tags=["media"])
         def media_missing(file_path: str) -> Response:
             """Graceful 404 when GYM_MEDIA_PATH is not mounted."""
-            return Response(status_code=404, content=f"media path not mounted: {file_path}")
+            return Response(
+                status_code=404,
+                content=(
+                    f"media path not mounted: {file_path}\n"
+                    f"GYM_MEDIA_PATH={MEDIA_PATH!s} does not exist."
+                ),
+            )
 
     # ---- Static SPA ----
     if STATIC_DIR.exists():
