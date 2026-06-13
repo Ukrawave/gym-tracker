@@ -16,7 +16,7 @@ import urllib.request
 BASE = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else "http://127.0.0.1:8080"
 
 
-def http(method: str, path: str, body=None):
+def http(method: str, path: str, body=None, decode: bool = True):
     data = None
     headers = {"Accept": "application/json"}
     if body is not None:
@@ -25,9 +25,11 @@ def http(method: str, path: str, body=None):
     req = urllib.request.Request(BASE + path, data=data, method=method, headers=headers)
     try:
         with urllib.request.urlopen(req) as resp:
-            return resp.status, resp.read().decode()
+            payload = resp.read()
+            return resp.status, (payload.decode() if decode else payload)
     except urllib.error.HTTPError as e:
-        return e.code, e.read().decode()
+        payload = e.read()
+        return e.code, (payload.decode(errors="replace") if decode else payload)
 
 
 def section(name: str) -> None:
@@ -109,6 +111,21 @@ expect(not missing, f"all expected keys present (missing: {missing})")
 section("7. Health")
 s, t = http("GET", "/api/health")
 expect(s == 200 and json.loads(t).get("status") == "ok", f"health ok (got {s} {t})")
+
+# 8. Exercise media is actually reachable (regression guard for the
+#    "exercise images don't load" bug — the host-mounted /media path was
+#    truncated by an unquoted systemd Environment= value, silently 404ing
+#    every demo loop and poster).
+section("8. Exercise media reachable (/media/<slug>.gif, /media/mp4/<slug>.mp4)")
+s, t = http("GET", "/api/exercises")
+exs = json.loads(t)
+sample = exs[:3]
+for ex in sample:
+    slug = ex["media_slug"]
+    sg, _ = http("GET", f"/media/{slug}.gif", decode=False)
+    sm, _ = http("GET", f"/media/mp4/{slug}.mp4", decode=False)
+    expect(sg == 200, f"GET /media/{slug}.gif -> 200 (got {sg})")
+    expect(sm == 200, f"GET /media/mp4/{slug}.mp4 -> 200 (got {sm})")
 
 print()
 if FAILED:
