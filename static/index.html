@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0A0F14">
+    <title>GYM-OPS · MISSION CONTROL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/static/css/hud.css">
+</head>
+<body>
+    <header class="hud-topbar">
+        <span class="brand">[ GYM-OPS // MISSION CONTROL ]</span>
+        <nav>
+            <a href="/">DASHBOARD</a>
+            <a href="/exercises.html">CATALOG</a>
+            <a href="/logger.html">LOGGER</a>
+            <a href="/progress.html">PROGRESS</a>
+        </nav>
+        <div class="right">
+            <span><span class="led led-green led-pulse" id="db-led"></span>&nbsp;<span id="db-status-text">DB ONLINE</span></span>
+            <span>[ SYSTEM_STATUS: NOMINAL ]</span>
+            <span>[ OPERATOR: HUGO ]</span>
+            <span id="clock-utc">--</span>
+            <span id="clock-local">--</span>
+        </div>
+    </header>
+
+    <main class="p-3 sm:p-5 max-w-screen-2xl mx-auto">
+
+        <section id="resume-cta" class="mb-4" style="display:none;">
+            <div class="hud-panel" style="border-color: var(--warn);">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <div class="hud-label">[ ACTIVE SESSION DETECTED ]</div>
+                        <div class="hud-value text-warn" id="active-session-info">…</div>
+                    </div>
+                    <a href="/logger.html" class="hud-btn warn">[ RESUME SESSION ]</a>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3">
+
+            <!-- PANEL A: telemetry -->
+            <section class="hud-panel xl:col-span-4">
+                <div class="hud-panel-header"><h2>// PANEL A · TELEMETRY</h2><span class="led led-cyan led-pulse"></span></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <div class="hud-label">[ TOTAL SESSIONS ]</div>
+                        <div class="hud-value text-info" id="tel-total-sessions">—</div>
+                    </div>
+                    <div>
+                        <div class="hud-label">[ TOTAL VOLUME ]</div>
+                        <div class="hud-value text-green" id="tel-total-volume">—</div>
+                    </div>
+                    <div>
+                        <div class="hud-label">[ LAST 7D ]</div>
+                        <div class="hud-value" id="tel-last7">—</div>
+                    </div>
+                    <div>
+                        <div class="hud-label">[ LAST 30D ]</div>
+                        <div class="hud-value" id="tel-last30">—</div>
+                    </div>
+                    <div>
+                        <div class="hud-label">[ TOTAL SETS ]</div>
+                        <div class="hud-value" id="tel-total-sets">—</div>
+                    </div>
+                    <div>
+                        <div class="hud-label">[ TOTAL REPS ]</div>
+                        <div class="hud-value" id="tel-total-reps">—</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL B: weekly volume trend -->
+            <section class="hud-panel xl:col-span-8">
+                <div class="hud-panel-header"><h2>// PANEL B · WEEKLY VOLUME TREND</h2><span class="text-muted">[ LAST 12 WEEKS ]</span></div>
+                <div class="chart-wrap"><canvas id="chart-weekly"></canvas></div>
+            </section>
+
+            <!-- PANEL C: muscle distribution -->
+            <section class="hud-panel xl:col-span-5">
+                <div class="hud-panel-header"><h2>// PANEL C · MUSCLE DISTRIBUTION</h2><span class="text-muted">[ LAST 30D ]</span></div>
+                <div class="chart-wrap"><canvas id="chart-muscle"></canvas></div>
+            </section>
+
+            <!-- PANEL D: PRs + recent sessions -->
+            <section class="hud-panel xl:col-span-7">
+                <div class="hud-panel-header"><h2>// PANEL D · RECORDS &amp; LOG</h2><span class="text-muted">[ TELEMETRY ]</span></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div class="hud-label mb-2">[ RECENT PRs ]</div>
+                        <ul id="pr-list" class="space-y-1 text-sm"></ul>
+                    </div>
+                    <div>
+                        <div class="hud-label mb-2">[ RECENT SESSIONS ]</div>
+                        <ul id="session-list" class="space-y-1 text-sm"></ul>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <footer class="mt-6 text-center text-muted text-xs">
+            <span class="uppercase-hud">[ GYM-OPS v1.0 // SELF-HOSTED // PRESS ANY KEY TO TRAIN ]</span>
+        </footer>
+    </main>
+
+    <script src="/static/js/hud.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

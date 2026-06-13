@@ -1,0 +1,433 @@
+/* hud.css — NASA Mission Control HUD styling
+   ----------------------------------------------------------------
+   Tailwind handles layout/spacing utility classes via the CDN play
+   build; this file owns the design tokens, panel chrome, neon LEDs,
+   HUD typography, and the mission-control polish. */
+
+:root {
+    --bg:        #0A0F14;
+    --panel:     #101820;
+    --panel-2:   #14243B;
+    --border:    #1E293B;
+    --hud-green: #00FF66;
+    --warn:      #FF9900;
+    --danger:    #FF3333;
+    --info:      #00E5FF;
+    --text:      #C7D2D0;
+    --muted:     #8A9A86;
+
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, monospace;
+    --font-hud:  'Share Tech Mono', 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body {
+    background-image:
+        radial-gradient(circle at 12% 18%, rgba(0, 229, 255, 0.05) 0, transparent 38%),
+        radial-gradient(circle at 88% 88%, rgba(0, 255, 102, 0.04) 0, transparent 45%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 4px);
+}
+
+::selection { background: var(--info); color: var(--bg); }
+
+/* scrollbar polish */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--info); }
+
+/* -------- HUD typography ------------------------------------- */
+.hud-label {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    font-size: 0.72rem;
+}
+.hud-value {
+    font-family: var(--font-mono);
+    color: var(--text);
+    font-size: 1.6rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+.hud-h1 {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--info);
+    font-size: 1.05rem;
+}
+
+/* -------- Panels --------------------------------------------- */
+.hud-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    position: relative;
+    padding: 0.75rem 1rem 1rem 1rem;
+}
+.hud-panel::before, .hud-panel::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-color: var(--info);
+    border-style: solid;
+    border-width: 0;
+    opacity: 0.85;
+}
+.hud-panel::before {
+    top: -1px;
+    left: -1px;
+    border-top-width: 1px;
+    border-left-width: 1px;
+}
+.hud-panel::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+}
+
+.hud-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+}
+.hud-panel-header h2 {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--info);
+    font-size: 0.82rem;
+    margin: 0;
+}
+
+/* -------- LEDs ------------------------------------------------ */
+.led {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--muted);
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
+    vertical-align: middle;
+}
+.led-green  { background: var(--hud-green); box-shadow: 0 0 10px var(--hud-green); }
+.led-amber  { background: var(--warn);     box-shadow: 0 0 10px var(--warn); }
+.led-red    { background: var(--danger);   box-shadow: 0 0 10px var(--danger); }
+.led-cyan   { background: var(--info);     box-shadow: 0 0 10px var(--info); }
+.led-pulse  { animation: ledPulse 1.4s ease-in-out infinite; }
+
+@keyframes ledPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+}
+
+/* -------- Buttons -------------------------------------------- */
+.hud-btn {
+    background: var(--panel-2);
+    color: var(--info);
+    border: 1px solid var(--info);
+    padding: 0.45rem 0.9rem;
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 120ms ease;
+}
+.hud-btn:hover {
+    background: var(--info);
+    color: var(--bg);
+    box-shadow: 0 0 12px var(--info);
+}
+.hud-btn:active { transform: translateY(1px); }
+.hud-btn[disabled] { opacity: 0.4; pointer-events: none; }
+
+.hud-btn.success { border-color: var(--hud-green); color: var(--hud-green); }
+.hud-btn.success:hover { background: var(--hud-green); color: var(--bg); box-shadow: 0 0 12px var(--hud-green); }
+.hud-btn.warn { border-color: var(--warn); color: var(--warn); }
+.hud-btn.warn:hover { background: var(--warn); color: var(--bg); box-shadow: 0 0 12px var(--warn); }
+.hud-btn.danger { border-color: var(--danger); color: var(--danger); }
+.hud-btn.danger:hover { background: var(--danger); color: var(--bg); box-shadow: 0 0 12px var(--danger); }
+
+/* -------- Inputs --------------------------------------------- */
+.hud-input, .hud-select {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 120ms;
+    width: 100%;
+}
+.hud-input:focus, .hud-select:focus {
+    border-color: var(--info);
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+}
+
+/* -------- Top status bar ------------------------------------- */
+.hud-topbar {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.72rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+}
+.hud-topbar .brand {
+    color: var(--info);
+    font-size: 0.92rem;
+    letter-spacing: 0.22em;
+}
+.hud-topbar nav a {
+    color: var(--muted);
+    text-decoration: none;
+    margin-right: 1rem;
+    padding-bottom: 2px;
+    border-bottom: 1px solid transparent;
+}
+.hud-topbar nav a:hover { color: var(--info); border-bottom-color: var(--info); }
+.hud-topbar nav a.active { color: var(--info); border-bottom-color: var(--info); }
+.hud-topbar .right { margin-left: auto; display: flex; gap: 1rem; align-items: center; }
+
+/* -------- Tags / chips --------------------------------------- */
+.tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: var(--font-hud);
+}
+.tag.chest    { color: var(--info);     border-color: var(--info); }
+.tag.back     { color: var(--hud-green); border-color: var(--hud-green); }
+.tag.legs     { color: var(--warn);     border-color: var(--warn); }
+.tag.shoulders{ color: #C77DFF;          border-color: #C77DFF; }
+.tag.biceps   { color: var(--info);     border-color: var(--info); }
+.tag.triceps  { color: var(--hud-green); border-color: var(--hud-green); }
+.tag.calves   { color: var(--warn);     border-color: var(--warn); }
+.tag.core     { color: var(--info);     border-color: var(--info); }
+
+/* -------- Exercise catalog cards ----------------------------- */
+.exercise-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+    transition: border-color 150ms, transform 150ms;
+    cursor: pointer;
+}
+.exercise-card:hover {
+    border-color: var(--info);
+    transform: translateY(-2px);
+}
+.exercise-card video, .exercise-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+}
+.exercise-card .body {
+    padding: 0.6rem 0.8rem;
+}
+.exercise-card h3 {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.85rem;
+    color: var(--text);
+    margin: 0 0 4px 0;
+}
+.exercise-card .cues {
+    color: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.35;
+    margin: 6px 0 0 0;
+    padding-left: 1rem;
+}
+
+/* -------- Logger UI ------------------------------------------ */
+.logger-exercise {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+}
+@media (max-width: 720px) {
+    .logger-exercise { grid-template-columns: 1fr; }
+}
+.logger-exercise video, .logger-exercise img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    background: var(--bg);
+}
+
+.set-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr 1fr 110px 64px;
+    gap: 0.4rem;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px dashed var(--border);
+}
+.set-row:last-child { border-bottom: none; }
+.set-row .idx {
+    font-family: var(--font-hud);
+    color: var(--muted);
+    text-align: right;
+    padding-right: 4px;
+}
+.set-row .saved-badge {
+    color: var(--hud-green);
+    font-family: var(--font-hud);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+}
+
+.last-time-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 0.5rem;
+}
+.last-time-chips .chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+}
+
+/* -------- Rest timer ring ------------------------------------ */
+.timer-ring {
+    --size: 160px;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    border: 3px solid var(--warn);
+    box-shadow: 0 0 24px rgba(255,153,0,0.35), inset 0 0 24px rgba(255,153,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background:
+        radial-gradient(circle at center, rgba(255,153,0,0.08) 0%, transparent 70%),
+        var(--panel);
+    font-family: var(--font-mono);
+}
+.timer-ring.running { animation: ringPulse 1s ease-in-out infinite; }
+@keyframes ringPulse {
+    0%, 100% { box-shadow: 0 0 24px rgba(255,153,0,0.35), inset 0 0 24px rgba(255,153,0,0.15); }
+    50%      { box-shadow: 0 0 40px rgba(255,153,0,0.6),  inset 0 0 30px rgba(255,153,0,0.3); }
+}
+.timer-ring .seconds {
+    font-size: 2.4rem;
+    color: var(--warn);
+    letter-spacing: 0.05em;
+}
+.timer-ring .label {
+    font-family: var(--font-hud);
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+/* -------- Modal ---------------------------------------------- */
+.hud-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 15, 20, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+.hud-modal {
+    background: var(--panel);
+    border: 1px solid var(--info);
+    max-width: 720px;
+    width: calc(100% - 2rem);
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.2rem;
+    box-shadow: 0 0 60px rgba(0, 229, 255, 0.3);
+}
+
+/* -------- Empty states / loaders ----------------------------- */
+.no-data {
+    color: var(--muted);
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 2rem;
+    border: 1px dashed var(--border);
+}
+.loader-bar {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--info), transparent);
+    background-size: 200% 100%;
+    animation: loaderShift 1.6s linear infinite;
+}
+@keyframes loaderShift {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* -------- Misc ----------------------------------------------- */
+.dot-sep::after { content: ' · '; color: var(--border); margin: 0 6px; }
+.text-info  { color: var(--info); }
+.text-green { color: var(--hud-green); }
+.text-warn  { color: var(--warn); }
+.text-danger { color: var(--danger); }
+.text-muted { color: var(--muted); }
+
+/* canvas containers */
+.chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 220px;
+}
+
+/* small util */
+.mono { font-family: var(--font-mono); }
+.uppercase-hud {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+}

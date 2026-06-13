@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  gym-tracker:
+    build: .
+    container_name: gym-tracker
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      GYM_MEDIA_PATH: /media
+      GYM_DB_PATH: /app/data/gym.db
+    volumes:
+      # SQLite DB persistence
+      - ./data:/app/data
+      # Exercise demo media — bind-mount the Obsidian path read-only.
+      # Adjust the source path to wherever the GIFs/MP4s live on your host.
+      - /home/hermes/Obsidian Vault/Gym/exercise-gifs:/media:ro

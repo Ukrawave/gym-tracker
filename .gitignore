@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+.env
+.env.local
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# data
+data/*.db
+data/*.db-journal
+data/*.db-wal
+data/*.db-shm
+!data/.gitkeep
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# private build/spec files not part of the published artifact
+CLAUDE.md

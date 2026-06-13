@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>GYM-OPS · EXERCISE CATALOG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/hud.css">
+</head>
+<body>
+    <header class="hud-topbar">
+        <span class="brand">[ GYM-OPS // CATALOG ]</span>
+        <nav>
+            <a href="/">DASHBOARD</a>
+            <a href="/exercises.html">CATALOG</a>
+            <a href="/logger.html">LOGGER</a>
+            <a href="/progress.html">PROGRESS</a>
+        </nav>
+        <div class="right">
+            <span><span class="led led-green led-pulse" id="db-led"></span>&nbsp;<span id="db-status-text">DB ONLINE</span></span>
+            <span id="clock-utc">--</span>
+            <span id="clock-local">--</span>
+        </div>
+    </header>
+
+    <main class="p-3 sm:p-5 max-w-screen-2xl mx-auto">
+        <section class="hud-panel mb-4">
+            <div class="hud-panel-header"><h2>// EXERCISE CATALOG</h2><span id="cat-count" class="text-muted">…</span></div>
+            <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+                <input id="search" placeholder="SEARCH EXERCISE..." class="hud-input md:max-w-sm" />
+                <div id="filter-chips" class="flex flex-wrap gap-2"></div>
+            </div>
+        </section>
+
+        <section id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></section>
+    </main>
+
+    <script src="/static/js/hud.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/exercises.js"></script>
+</body>
+</html>
