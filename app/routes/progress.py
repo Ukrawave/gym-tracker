@@ -72,8 +72,14 @@ def _iso_week_key(d: str) -> str:
 def dashboard() -> dict[str, Any]:
     """Aggregate telemetry for the home HUD."""
     today_iso = date.today().isoformat()
+    # 'Counted sessions' = sessions that include at least one set_entries row.
+    # This keeps the headline counters consistent with the history list and
+    # with the storage-hygiene rule enforced by app/cleanup.py.
+    _COUNTED = "EXISTS (SELECT 1 FROM set_entries se WHERE se.session_id = sessions.id)"
     with db_conn() as conn:
-        total_sessions = conn.execute("SELECT COUNT(*) AS c FROM sessions").fetchone()["c"]
+        total_sessions = conn.execute(
+            f"SELECT COUNT(*) AS c FROM sessions WHERE {_COUNTED}"
+        ).fetchone()["c"]
         agg = conn.execute(
             """SELECT COALESCE(SUM(weight*reps),0) AS vol,
                       COUNT(*) AS sets,
@@ -81,13 +87,13 @@ def dashboard() -> dict[str, Any]:
                FROM set_entries"""
         ).fetchone()
         last7 = conn.execute(
-            """SELECT COUNT(*) AS c FROM sessions
-               WHERE date >= date(?, '-7 days')""",
+            f"""SELECT COUNT(*) AS c FROM sessions
+               WHERE {_COUNTED} AND date >= date(?, '-7 days')""",
             (today_iso,),
         ).fetchone()["c"]
         last30 = conn.execute(
-            """SELECT COUNT(*) AS c FROM sessions
-               WHERE date >= date(?, '-30 days')""",
+            f"""SELECT COUNT(*) AS c FROM sessions
+               WHERE {_COUNTED} AND date >= date(?, '-30 days')""",
             (today_iso,),
         ).fetchone()["c"]
         muscle_rows = conn.execute(
@@ -114,7 +120,9 @@ def dashboard() -> dict[str, Any]:
             """SELECT s.*,
                       (SELECT COUNT(*) FROM set_entries se WHERE se.session_id = s.id) AS total_sets,
                       (SELECT COALESCE(SUM(weight*reps),0) FROM set_entries se WHERE se.session_id = s.id) AS total_volume
-               FROM sessions s ORDER BY s.id DESC LIMIT 5"""
+               FROM sessions s
+               WHERE EXISTS (SELECT 1 FROM set_entries se2 WHERE se2.session_id = s.id)
+               ORDER BY s.id DESC LIMIT 5"""
         ).fetchall()
         weekly_rows = conn.execute(
             """SELECT s.date AS d, COALESCE(SUM(se.weight*se.reps),0) AS vol

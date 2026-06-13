@@ -125,6 +125,23 @@ keys are enabled. Tables: `exercises`, `sessions`, `set_entries`, `personal_reco
 are re-evaluated by walking the per-exercise timeline in chronological order and stamping
 every non-warmup set that beats the running max weight or max est-1RM (Brzycki).
 
+### History retention rule
+
+History keeps **only sessions that include exercise weights** — i.e. sessions with at least
+one row in `set_entries`. Sessions that were started but abandoned before a single set was
+logged are swept on every app boot by `app/cleanup.py` (idempotent) and excluded from the
+`/api/sessions` list and the dashboard's `recent_sessions` / `total_sessions` /
+`sessions_last_*` counters. The dashboard's `current_session` field still surfaces an
+in-progress empty session so the user can resume it from the **RESUME** CTA.
+
+Run the sweep manually:
+
+```bash
+python -m app.cleanup --dry-run    # show what would be deleted
+python -m app.cleanup              # actually delete
+```
+
+
 ## Frontend
 
 Four pages, each loads `hud.js` (clock / LEDs / beeper / rest timer / modal) + `api.js`

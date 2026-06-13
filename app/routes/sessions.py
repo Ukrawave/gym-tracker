@@ -82,10 +82,19 @@ def create_session(payload: SessionCreate) -> dict[str, Any]:
 
 @router.get("/sessions")
 def list_sessions(limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
-    """Most recent sessions first; includes summary stats."""
+    """Most recent sessions first; includes summary stats.
+
+    Only returns sessions that have at least one ``set_entries`` row
+    (a 'session with exercise weights'). In-progress sessions that have
+    never logged a set are exposed via the dashboard's ``current_session``
+    field instead, so the user can still resume them — they just don't
+    pollute the history list.
+    """
     with db_conn() as conn:
         rows = conn.execute(
-            """SELECT * FROM sessions ORDER BY id DESC LIMIT ? OFFSET ?""",
+            """SELECT * FROM sessions
+               WHERE EXISTS (SELECT 1 FROM set_entries se WHERE se.session_id = sessions.id)
+               ORDER BY id DESC LIMIT ? OFFSET ?""",
             (limit, offset),
         ).fetchall()
         out = []
