@@ -26,7 +26,12 @@ from app.routes import sets as sets_routes
 APP_ROOT = Path(__file__).resolve().parent.parent
 STATIC_DIR = APP_ROOT / "static"
 DEFAULT_MEDIA_PATH = "/home/hermes/Obsidian Vault/Gym/exercise-gifs"
-MEDIA_PATH = Path(os.environ.get("GYM_MEDIA_PATH", DEFAULT_MEDIA_PATH))
+# Treat an empty / whitespace-only GYM_MEDIA_PATH as 'unset'. Without this
+# guard, Path("") becomes PosixPath(".") and StaticFiles cheerfully mounts
+# the process CWD at /media — which on a real deploy would expose the venv,
+# source tree, and SQLite DB.
+_raw_media = os.environ.get("GYM_MEDIA_PATH", "").strip()
+MEDIA_PATH = Path(_raw_media or DEFAULT_MEDIA_PATH)
 
 
 def create_app() -> FastAPI:
@@ -47,11 +52,23 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     def _startup() -> None:
         init_schema()
-        # Storage hygiene: sweep out sessions that never logged any weights.
-        # See app/cleanup.py for the rule. Boot-time so the invariant holds
-        # across restarts, container rebuilds, and DB volume swaps.
+        # Storage hygiene: sweep out finished sessions that never logged any
+        # weights. See app/cleanup.py for the rule (in-progress sessions are
+        # carved out so the RESUME CTA still works). Boot-time so the
+        # invariant holds across restarts, container rebuilds, and DB
+        # volume swaps. Log the result so journalctl shows what happened
+        # — the previous silent call made the 'sweep on every boot' promise
+        # unobservable in production.
         from app.cleanup import cleanup_empty_sessions
-        cleanup_empty_sessions()
+        report = cleanup_empty_sessions()
+        if report["deleted"]:
+            print(
+                f"[cleanup] swept {report['deleted']} empty finished session(s): "
+                f"ids={report['ids']}",
+                flush=True,
+            )
+        else:
+            print("[cleanup] no empty finished sessions to sweep", flush=True)
 
     # ---- API routers ----
     app.include_router(exercises_routes.router, prefix="/api", tags=["exercises"])

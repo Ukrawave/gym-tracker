@@ -25,14 +25,27 @@ from typing import Any
 
 from app.db import db_conn
 
-# Rows that match this WHERE clause are 'sessions without exercise weights'.
-# We treat 'any row in set_entries' as evidence of weights — even a zero-weight
-# warm-up set counts as user-entered data the user might want to keep. If you
-# need a stricter rule later (e.g. ``weight > 0``), change this single literal.
+# Rows that match this WHERE clause are 'sessions without exercise weights
+# that the user has already finished'. Two carve-outs from the simple "no
+# set_entries" rule:
+#
+#  (1) We treat 'any row in set_entries' as evidence of weights — even a
+#      zero-weight warm-up set counts as user-entered data the user might
+#      want to keep. If you need a stricter rule later (e.g. ``weight > 0``),
+#      change this single literal.
+#
+#  (2) ``end_time IS NOT NULL`` — never sweep an in-progress session, even
+#      if it has no sets yet. The dashboard's ``current_session`` field (the
+#      RESUME CTA) reads exactly this row, and the user must be able to
+#      restart a freshly-created session that they haven't logged any sets
+#      to yet. Without this clause a server restart during a session
+#      kickoff would silently drop the RESUME state — see PR review of #2
+#      (kanban t_f43291ba, comment 42).
 _EMPTY_SESSIONS_SQL = """
     SELECT s.id, s.date, s.category, s.start_time, s.end_time, s.notes
     FROM sessions s
-    WHERE NOT EXISTS (
+    WHERE s.end_time IS NOT NULL
+      AND NOT EXISTS (
         SELECT 1 FROM set_entries se WHERE se.session_id = s.id
     )
 """

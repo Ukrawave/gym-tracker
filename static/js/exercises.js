@@ -43,23 +43,30 @@
             grid.innerHTML = `<div class="no-data" style="grid-column: 1 / -1;">[ NO MATCH ]</div>`;
             return;
         }
-        grid.innerHTML = filtered.map(ex => `
-            <article class="exercise-card" data-id="${ex.id}">
+        grid.innerHTML = filtered.map(ex => {
+            const slug = hudUtil.attrEscape(ex.media_slug);
+            const name = hudUtil.attrEscape(ex.name);
+            const muscle = hudUtil.attrEscape(ex.muscle_group || '');
+            const exid = hudUtil.attrEscape(ex.id);
+            return `
+            <article class="exercise-card" data-id="${exid}">
                 <div class="media">
                     <video src="${hudUtil.mediaUrl(ex.media_slug, 'mp4')}" autoplay loop muted playsinline
                         poster="${hudUtil.mediaUrl(ex.media_slug, 'gif')}"
-                        onerror="this.replaceWith(Object.assign(document.createElement('img'),{src:'${hudUtil.mediaUrl(ex.media_slug,'gif')}',alt:'${ex.name}'}))">
+                        data-fallback-slug="${slug}" data-fallback-alt="${name}">
                     </video>
                 </div>
                 <div class="body">
-                    <h3>${ex.name}</h3>
+                    <h3>${name}</h3>
                     <div class="meta-row">
-                        <span class="${hudUtil.muscleTagClass(ex.muscle_group)}">${ex.muscle_group}</span>
-                        <span class="text-muted text-xs mono">${ex.id}</span>
+                        <span class="${hudUtil.muscleTagClass(ex.muscle_group)}">${muscle}</span>
+                        <span class="text-muted text-xs mono">${exid}</span>
                     </div>
                 </div>
             </article>
-        `).join('');
+        `;
+        }).join('');
+        hudUtil.attachVideoFallback(grid);
         grid.querySelectorAll('.exercise-card').forEach(card => {
             card.addEventListener('click', () => openDetail(card.dataset.id));
         });
@@ -75,28 +82,34 @@
             ? `<div class="hud-label mt-2">[ CURRENT PR ]</div>
                <div class="hud-value text-green">${records[0].max_weight} KG · est-1RM ${Math.round(records[0].est_1rm)} KG <span class="text-muted text-sm">(${records[0].pr_date})</span></div>`
             : `<div class="no-data mt-2">[ NO PR LOGGED ]</div>`;
+        const exName = hudUtil.attrEscape(ex.name);
+        const slug = hudUtil.attrEscape(ex.media_slug);
         hudModal.open(`
-            <div class="hud-panel-header"><h2>${ex.name}</h2>
+            <div class="hud-panel-header"><h2>${exName}</h2>
                 <button class="hud-btn danger" onclick="hudModal.close()">[ X ]</button>
             </div>
             <div class="modal-detail-grid">
                 <div class="modal-media">
                     <video src="${hudUtil.mediaUrl(ex.media_slug, 'mp4')}" autoplay loop muted playsinline
-                        onerror="this.replaceWith(Object.assign(document.createElement('img'),{src:'${hudUtil.mediaUrl(ex.media_slug,'gif')}',alt:'${ex.name}'}))">
+                        data-fallback-slug="${slug}" data-fallback-alt="${exName}">
                     </video>
                 </div>
                 <div>
                     <div class="hud-label">[ MUSCLE GROUP ]</div>
-                    <div class="hud-value"><span class="${hudUtil.muscleTagClass(ex.muscle_group)}">${ex.muscle_group}</span></div>
+                    <div class="hud-value"><span class="${hudUtil.muscleTagClass(ex.muscle_group)}">${hudUtil.attrEscape(ex.muscle_group || '')}</span></div>
                     <div class="hud-label" style="margin-top: 0.75rem;">[ FORM CUES ]</div>
                     <ul class="cues" style="color: var(--text);">${cues || '<li class="text-muted">no cues</li>'}</ul>
                     ${prRow}
                     <div style="margin-top: 0.75rem;">
-                        <a href="/progress.html#${ex.id}" class="hud-btn">[ VIEW PROGRESS ]</a>
+                        <a href="/progress.html#${hudUtil.attrEscape(ex.id)}" class="hud-btn">[ VIEW PROGRESS ]</a>
                     </div>
                 </div>
             </div>
         `);
+        // Wire fallback on the modal body so the <video> swaps to <img>
+        // when the MP4 404s without re-entering inline HTML attributes.
+        const modalEl = document.querySelector('.hud-modal') || document.body;
+        hudUtil.attachVideoFallback(modalEl);
     }
 
     search.addEventListener('input', hudUtil.debounce(() => { q = search.value; renderGrid(); }, 150));

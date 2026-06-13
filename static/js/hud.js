@@ -182,6 +182,48 @@
             if (kind === 'mp4') return `/media/mp4/${slug}.mp4`;
             return `/media/${slug}.gif`;
         },
+        // Escape a user/data-supplied string for safe insertion into an
+        // HTML *attribute* value (e.g. alt="...", title="...", data-*=...).
+        // Use this any time you template-literal a string that came from
+        // the API into innerHTML, since the API today happens to be
+        // controlled by the same single user but exercises[].name is the
+        // kind of field that grows untrusted sources over time (imports,
+        // YAML edits, copy-paste). Cheaper than auditing every caller.
+        attrEscape(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        },
+        // Delegated <video> -> <img> fallback for /media/mp4/*.mp4 -> /media/*.gif.
+        // Wire it once per container instead of stamping inline `onerror=`
+        // attributes that interpolate user data into HTML (XSS surface).
+        //
+        // Usage:
+        //   <video data-fallback-slug="${slug}" data-fallback-alt="${name}" ...></video>
+        //   hudUtil.attachVideoFallback(container);
+        //
+        // The handler fires on the capture phase because <video> 'error'
+        // events do not bubble in most browsers.
+        attachVideoFallback(container) {
+            if (!container || container.__hudFallbackWired) return;
+            container.__hudFallbackWired = true;
+            container.addEventListener('error', (ev) => {
+                const v = ev.target;
+                if (!v || v.tagName !== 'VIDEO') return;
+                const slug = v.dataset.fallbackSlug;
+                if (!slug) return;
+                const alt = v.dataset.fallbackAlt || '';
+                const cls = v.dataset.fallbackClass || '';
+                const img = document.createElement('img');
+                img.src = this.mediaUrl(slug, 'gif');
+                img.alt = alt;
+                if (cls) img.className = cls;
+                v.replaceWith(img);
+            }, /* useCapture */ true);
+        },
         // Pretty-print server timestamps as local clock for humans.
         // Accepts ISO strings ('2026-06-13T11:16:36+00:00' or naïve
         // '2026-06-13T11:16:36'). Returns 'HH:MM // YYYY-MM-DD'.
