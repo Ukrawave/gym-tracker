@@ -3,15 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>GYM-OPS · PROGRESS</title>
+    <title>GYM-OPS · Progress</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="/static/css/hud.css">
 </head>
 <body>
     <header class="hud-topbar">
-        <span class="brand">[ GYM-OPS // PROGRESS ]</span>
+        <span class="brand">[ GYM-OPS ]</span>
         <nav>
             <a href="/">DASHBOARD</a>
             <a href="/exercises.html">CATALOG</a>
@@ -20,34 +19,49 @@
         </nav>
         <div class="right">
             <span><span class="led led-green led-pulse" id="db-led"></span>&nbsp;<span id="db-status-text">DB ONLINE</span></span>
-            <span id="clock-utc">--</span>
             <span id="clock-local">--</span>
         </div>
     </header>
 
-    <main class="p-3 sm:p-5 max-w-screen-2xl mx-auto">
-        <section class="hud-panel mb-4">
-            <div class="hud-panel-header"><h2>// EXERCISE TELEMETRY</h2><span id="exercise-meta" class="text-muted">[ SELECT EXERCISE ]</span></div>
-            <select id="exercise-picker" class="hud-select md:max-w-md"></select>
+    <main class="page stack-lg">
+        <section class="hud-panel">
+            <div class="hud-panel-header">
+                <h2>Exercise progression</h2>
+                <span class="meta" id="exercise-meta">[ select an exercise ]</span>
+            </div>
+            <select id="exercise-picker" class="hud-select" style="max-width:480px;"></select>
         </section>
 
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
-            <section class="hud-panel">
-                <div class="hud-panel-header"><h2>// MAX WEIGHT</h2><span class="text-muted">[ PER SESSION ]</span></div>
+        <div class="grid grid-2">
+            <div class="hud-panel">
+                <div class="hud-panel-header">
+                    <h2>Max weight</h2>
+                    <span class="meta">Per session</span>
+                </div>
                 <div class="chart-wrap"><canvas id="chart-weight"></canvas></div>
-            </section>
-            <section class="hud-panel">
-                <div class="hud-panel-header"><h2>// EST 1RM (BRZYCKI)</h2><span class="text-muted">[ PER SESSION ]</span></div>
+            </div>
+            <div class="hud-panel">
+                <div class="hud-panel-header">
+                    <h2>Estimated 1RM (Brzycki)</h2>
+                    <span class="meta">Per session</span>
+                </div>
                 <div class="chart-wrap"><canvas id="chart-1rm"></canvas></div>
-            </section>
-            <section class="hud-panel xl:col-span-2">
-                <div class="hud-panel-header"><h2>// TOTAL VOLUME</h2><span class="text-muted">[ PER SESSION ]</span></div>
-                <div class="chart-wrap" style="height: 260px;"><canvas id="chart-volume"></canvas></div>
-            </section>
+            </div>
         </div>
 
-        <section class="hud-panel mt-4">
-            <div class="hud-panel-header"><h2>// PERSONAL RECORDS</h2><span class="text-muted">[ HISTORY ]</span></div>
+        <div class="hud-panel">
+            <div class="hud-panel-header">
+                <h2>Total volume</h2>
+                <span class="meta">Per session</span>
+            </div>
+            <div class="chart-wrap tall"><canvas id="chart-volume"></canvas></div>
+        </div>
+
+        <section class="hud-panel">
+            <div class="hud-panel-header">
+                <h2>Personal records</h2>
+                <span class="meta">Recent history</span>
+            </div>
             <div id="pr-table"></div>
         </section>
     </main>

@@ -3,14 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>GYM-OPS · SESSION LOGGER</title>
+    <title>GYM-OPS · Session Logger</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/static/css/hud.css">
 </head>
 <body>
     <header class="hud-topbar">
-        <span class="brand">[ GYM-OPS // LOGGER ]</span>
+        <span class="brand">[ GYM-OPS ]</span>
         <nav>
             <a href="/">DASHBOARD</a>
             <a href="/exercises.html">CATALOG</a>
@@ -19,45 +18,55 @@
         </nav>
         <div class="right">
             <span><span class="led led-green led-pulse" id="db-led"></span>&nbsp;<span id="db-status-text">DB ONLINE</span></span>
-            <span id="clock-utc">--</span>
             <span id="clock-local">--</span>
         </div>
     </header>
 
-    <main class="p-3 sm:p-5 max-w-screen-2xl mx-auto">
+    <main class="page stack-lg">
 
-        <!-- Split picker -->
-        <section id="picker-panel" class="hud-panel mb-4">
-            <div class="hud-panel-header"><h2>// SESSION INITIATION</h2><span class="text-muted">[ SELECT TRAINING SPLIT ]</span></div>
-            <div id="split-buttons" class="flex flex-wrap gap-2"></div>
+        <!-- Split picker — shown only when no active session -->
+        <section id="picker-panel" class="hud-panel">
+            <div class="hud-panel-header">
+                <h2>Start a session</h2>
+                <span class="meta">Pick a training split</span>
+            </div>
+            <div id="split-buttons" class="row"></div>
         </section>
 
         <!-- Active session -->
-        <section id="session-panel" style="display:none;">
-            <div class="hud-panel mb-3">
+        <section id="session-panel" class="hidden stack">
+            <div class="hud-panel">
                 <div class="hud-panel-header">
-                    <h2>// ACTIVE SESSION <span id="active-category" class="text-info"></span></h2>
-                    <span class="text-muted">SID:<span id="active-session-id">--</span> · START <span id="active-start"></span></span>
+                    <h2>Active session<span id="active-category" class="text-info"></span></h2>
+                    <span class="meta">SID:<span id="active-session-id">--</span> · Start <span id="active-start"></span></span>
                 </div>
-                <div class="flex flex-wrap gap-3 items-center">
+                <div class="row">
                     <button id="end-session" class="hud-btn success">[ END SESSION ]</button>
                     <button id="discard-session" class="hud-btn danger">[ DISCARD ]</button>
-                    <input id="session-notes" class="hud-input flex-1" placeholder="SESSION NOTES (optional)" />
+                    <input id="session-notes" class="hud-input" placeholder="Session notes (optional)" style="flex:1 1 240px;" />
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
+            <div class="logger-grid">
                 <!-- Exercise lineup -->
-                <div id="lineup"></div>
+                <div id="lineup" class="stack"></div>
 
-                <!-- Timer panel -->
-                <aside class="hud-panel" style="position: sticky; top: 1rem; height: fit-content;">
-                    <div class="hud-panel-header"><h2>// REST TIMER</h2><span class="led led-amber led-pulse"></span></div>
-                    <div id="timer-root" class="flex flex-col items-center"></div>
-                    <div class="mt-4 hud-label">[ ADD EXERCISE ]</div>
-                    <div class="flex gap-2 mt-2">
-                        <select id="add-exercise-select" class="hud-select"></select>
-                        <button id="add-exercise-btn" class="hud-btn">[ + ]</button>
+                <!-- Sidebar: timer + add-exercise -->
+                <aside class="logger-sidebar">
+                    <div class="hud-panel">
+                        <div class="hud-panel-header">
+                            <h2><span class="led led-amber led-pulse"></span> Rest timer</h2>
+                        </div>
+                        <div id="timer-root"></div>
+                    </div>
+                    <div class="hud-panel">
+                        <div class="hud-panel-header">
+                            <h2>Add exercise</h2>
+                        </div>
+                        <div class="col">
+                            <select id="add-exercise-select" class="hud-select"></select>
+                            <button id="add-exercise-btn" class="hud-btn">[ + ADD TO SESSION ]</button>
+                        </div>
                     </div>
                 </aside>
             </div>

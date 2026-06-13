@@ -108,24 +108,24 @@
                 prTable.innerHTML = `<div class="no-data">[ NO PRs RECORDED ]</div>`;
             } else {
                 prTable.innerHTML = `
-                <table class="w-full text-sm mono">
+                <table class="pr-table">
                     <thead>
-                        <tr class="uppercase-hud text-muted text-xs">
-                            <th class="text-left p-1">DATE</th>
-                            <th class="text-right p-1">WEIGHT</th>
-                            <th class="text-right p-1">REPS</th>
-                            <th class="text-right p-1">EST 1RM</th>
-                            <th class="text-right p-1">SET ID</th>
+                        <tr>
+                            <th>Date</th>
+                            <th style="text-align:right;">Weight</th>
+                            <th style="text-align:right;">Reps</th>
+                            <th style="text-align:right;">est-1RM</th>
+                            <th style="text-align:right;">Set ID</th>
                         </tr>
                     </thead>
                     <tbody>
                     ${prs.map((p, i) => `
-                        <tr style="border-top: 1px solid var(--border);">
-                            <td class="p-1">${p.pr_date} ${i === 0 ? '<span class="led led-green led-pulse"></span>' : ''}</td>
-                            <td class="text-right p-1 text-green">${p.set_weight} KG</td>
-                            <td class="text-right p-1">${p.set_reps}</td>
-                            <td class="text-right p-1 text-info">${Math.round(p.est_1rm)} KG</td>
-                            <td class="text-right p-1 text-muted">#${p.set_entry_id}</td>
+                        <tr>
+                            <td>${p.pr_date} ${i === 0 ? '<span class="led led-green led-pulse"></span>' : ''}</td>
+                            <td style="text-align:right;" class="text-green">${p.set_weight} kg</td>
+                            <td style="text-align:right;">${p.set_reps}</td>
+                            <td style="text-align:right;" class="text-info">${Math.round(p.est_1rm)} kg</td>
+                            <td style="text-align:right;" class="text-muted">#${p.set_entry_id}</td>
                         </tr>
                     `).join('')}
                     </tbody>

@@ -19,14 +19,13 @@
             return;
         }
         ul.innerHTML = d.recent_prs.map((p, i) => `
-            <li class="flex items-center gap-2">
+            <li>
                 <span class="led ${i === 0 ? 'led-green led-pulse' : 'led-green'}"></span>
-                <span class="text-muted">${p.pr_date}</span>
-                <span class="text-info uppercase-hud">${p.exercise_name}</span>
-                <span class="text-green">${p.max_weight}KG</span>
-                <span class="text-muted">·</span>
-                <span class="text-muted">est-1RM ${Math.round(p.est_1rm)}KG</span>
-                ${i === 0 ? '<span class="text-warn uppercase-hud">[ PR_LOCKED ]</span>' : ''}
+                <span class="date">${p.pr_date}</span>
+                <span class="name">${p.exercise_name}</span>
+                <span class="metric">${p.max_weight} kg</span>
+                <span class="sub">est-1RM ${Math.round(p.est_1rm)} kg</span>
+                ${i === 0 ? '<span class="text-warn uppercase-hud text-xs">[ PR_LOCKED ]</span>' : ''}
             </li>
         `).join('');
     }
@@ -38,24 +37,23 @@
             return;
         }
         ul.innerHTML = d.recent_sessions.map((s) => `
-            <li class="flex items-center gap-2">
+            <li>
                 <span class="led led-cyan"></span>
-                <span class="text-muted">${s.date}</span>
-                <span class="text-info uppercase-hud">${s.category}</span>
-                <span class="text-muted">·</span>
-                <span class="text-green">${hudUtil.formatVolume(s.total_volume)}</span>
-                <span class="text-muted">${s.total_sets} SETS</span>
+                <span class="date">${s.date}</span>
+                <span class="name">${s.category}</span>
+                <span class="metric">${hudUtil.formatVolume(s.total_volume)}</span>
+                <span class="sub">${s.total_sets} sets</span>
             </li>
         `).join('');
     }
 
     function paintResumeCTA(d) {
         const wrap = $('resume-cta');
-        if (!d.current_session) { wrap.style.display = 'none'; return; }
-        wrap.style.display = '';
+        if (!d.current_session) { wrap.classList.add('hidden'); return; }
+        wrap.classList.remove('hidden');
         const cs = d.current_session;
         $('active-session-info').textContent =
-            `${cs.category.toUpperCase()} · STARTED ${hudUtil.formatTimestamp(cs.start_time)}`;
+            `${cs.category.toUpperCase()} · started ${hudUtil.formatTimestamp(cs.start_time)}`;
     }
 
     function paintWeekly(d) {
@@ -107,9 +105,24 @@
                 }],
             },
             options: {
-                ...chartOpts(),
+                responsive: true,
+                maintainAspectRatio: false,
                 cutout: '60%',
-                plugins: { legend: { position: 'right', labels: { color: '#C7D2D0', font: { family: "'Share Tech Mono', monospace" } } } },
+                // No x/y axes on a doughnut — explicit override fixes the bug
+                // where Chart.js v4 paints stray numeric scale labels.
+                scales: { x: { display: false }, y: { display: false } },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#C7D2D0',
+                            font: { family: "'Share Tech Mono', monospace" },
+                            boxWidth: 12,
+                            padding: 10,
+                        },
+                    },
+                    tooltip: { bodyFont: { family: "'JetBrains Mono', monospace" } },
+                },
             }
         });
     }

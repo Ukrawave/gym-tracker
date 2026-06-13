@@ -1,14 +1,20 @@
-/* hud.css — NASA Mission Control HUD styling
+/* hud.css — NASA Mission Control HUD styling (v2, self-hosted)
    ----------------------------------------------------------------
-   Tailwind handles layout/spacing utility classes via the CDN play
-   build; this file owns the design tokens, panel chrome, neon LEDs,
-   HUD typography, and the mission-control polish. */
+   This file is the ONLY stylesheet. It owns design tokens, panel
+   chrome, neon LEDs, HUD typography, AND the page layout primitives
+   (grid, flex utilities, spacing) the project used to delegate to a
+   Tailwind Play CDN. No external CSS dependency. */
 
+/* =====================================================
+   TOKENS
+   ===================================================== */
 :root {
     --bg:        #0A0F14;
+    --bg-elev:   #0D1218;
     --panel:     #101820;
     --panel-2:   #14243B;
     --border:    #1E293B;
+    --border-2:  #243349;
     --hud-green: #00FF66;
     --warn:      #FF9900;
     --danger:    #FF3333;
@@ -18,6 +24,16 @@
 
     --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, monospace;
     --font-hud:  'Share Tech Mono', 'JetBrains Mono', monospace;
+
+    /* layout scale */
+    --gap-1: 0.25rem;
+    --gap-2: 0.5rem;
+    --gap-3: 0.75rem;
+    --gap-4: 1rem;
+    --gap-5: 1.5rem;
+    --gap-6: 2rem;
+
+    --container-max: 1400px;
 }
 
 * { box-sizing: border-box; }
@@ -30,6 +46,7 @@ html, body {
     padding: 0;
     min-height: 100vh;
     overflow-x: hidden;
+    line-height: 1.45;
 }
 
 body {
@@ -47,7 +64,114 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 0; }
 ::-webkit-scrollbar-thumb:hover { background: var(--info); }
 
-/* -------- HUD typography ------------------------------------- */
+/* =====================================================
+   LAYOUT PRIMITIVES (replace Tailwind utilities)
+   ===================================================== */
+
+/* Page container — bounded width with consistent padding */
+.page {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: var(--gap-4);
+}
+@media (min-width: 640px) {
+    .page { padding: var(--gap-5); }
+}
+
+/* Sections separated by a clean gap */
+.stack > * + * { margin-top: var(--gap-4); }
+.stack-lg > * + * { margin-top: var(--gap-5); }
+.stack-sm > * + * { margin-top: var(--gap-2); }
+
+/* Generic flex helpers */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-3);
+    align-items: center;
+}
+.row-tight { display: flex; flex-wrap: wrap; gap: var(--gap-2); align-items: center; }
+.row-between { justify-content: space-between; }
+.row-end { justify-content: flex-end; }
+.col { display: flex; flex-direction: column; gap: var(--gap-2); }
+.spacer { flex: 1 1 auto; }
+.hidden { display: none !important; }
+
+/* Generic grid helpers */
+.grid { display: grid; gap: var(--gap-4); }
+.grid-2 { grid-template-columns: 1fr; }
+.grid-3 { grid-template-columns: 1fr; }
+.grid-4 { grid-template-columns: 1fr; }
+@media (min-width: 640px) {
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* =====================================================
+   TOP BAR
+   ===================================================== */
+.hud-topbar {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0.6rem var(--gap-4);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-5);
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.72rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(6px);
+}
+.hud-topbar .brand {
+    color: var(--info);
+    font-size: 0.92rem;
+    letter-spacing: 0.22em;
+    flex-shrink: 0;
+}
+.hud-topbar nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-4);
+}
+.hud-topbar nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 2px 0;
+    border-bottom: 1px solid transparent;
+    transition: color 120ms, border-color 120ms;
+}
+.hud-topbar nav a:hover { color: var(--info); border-bottom-color: var(--info); }
+.hud-topbar nav a.active { color: var(--info); border-bottom-color: var(--info); }
+.hud-topbar .right {
+    margin-left: auto;
+    display: flex;
+    gap: var(--gap-4);
+    align-items: center;
+    flex-wrap: wrap;
+}
+@media (max-width: 640px) {
+    .hud-topbar { gap: var(--gap-3); padding: 0.5rem var(--gap-3); }
+    .hud-topbar .right { gap: var(--gap-3); font-size: 0.65rem; }
+    /* On narrow screens we drop the noisy mission-control labels but keep
+       the live data: DB LED, clock, operator. The brand + nav already say
+       where you are. */
+    .hud-topbar .right .sys-noise { display: none; }
+}
+
+/* =====================================================
+   TYPOGRAPHY HELPERS
+   ===================================================== */
 .hud-label {
     font-family: var(--font-hud);
     text-transform: uppercase;
@@ -61,6 +185,7 @@ body {
     font-size: 1.6rem;
     font-weight: 500;
     letter-spacing: 0.05em;
+    line-height: 1.1;
 }
 .hud-h1 {
     font-family: var(--font-hud);
@@ -68,15 +193,32 @@ body {
     letter-spacing: 0.22em;
     color: var(--info);
     font-size: 1.05rem;
+    margin: 0;
 }
+.uppercase-hud {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+}
+.text-info  { color: var(--info); }
+.text-green { color: var(--hud-green); }
+.text-warn  { color: var(--warn); }
+.text-danger { color: var(--danger); }
+.text-muted { color: var(--muted); }
+.text-xs { font-size: 0.72rem; }
+.text-sm { font-size: 0.85rem; }
+.mono { font-family: var(--font-mono); }
 
-/* -------- Panels --------------------------------------------- */
+/* =====================================================
+   PANELS
+   ===================================================== */
 .hud-panel {
     background: var(--panel);
     border: 1px solid var(--border);
     position: relative;
-    padding: 0.75rem 1rem 1rem 1rem;
+    padding: var(--gap-4);
 }
+.hud-panel.compact { padding: var(--gap-3); }
 .hud-panel::before, .hud-panel::after {
     content: '';
     position: absolute;
@@ -86,6 +228,7 @@ body {
     border-style: solid;
     border-width: 0;
     opacity: 0.85;
+    pointer-events: none;
 }
 .hud-panel::before {
     top: -1px;
@@ -104,9 +247,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 0.5rem;
+    padding-bottom: var(--gap-2);
     border-bottom: 1px solid var(--border);
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--gap-3);
+    gap: var(--gap-3);
+    flex-wrap: wrap;
 }
 .hud-panel-header h2 {
     font-family: var(--font-hud);
@@ -115,9 +260,21 @@ body {
     color: var(--info);
     font-size: 0.82rem;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+}
+.hud-panel-header .meta {
+    color: var(--muted);
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.7rem;
 }
 
-/* -------- LEDs ------------------------------------------------ */
+/* =====================================================
+   LEDs / STATUS
+   ===================================================== */
 .led {
     display: inline-block;
     width: 9px;
@@ -138,7 +295,9 @@ body {
     50%      { opacity: 0.35; }
 }
 
-/* -------- Buttons -------------------------------------------- */
+/* =====================================================
+   BUTTONS
+   ===================================================== */
 .hud-btn {
     background: var(--panel-2);
     color: var(--info);
@@ -150,6 +309,11 @@ body {
     font-size: 0.78rem;
     cursor: pointer;
     transition: all 120ms ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--gap-2);
+    line-height: 1;
 }
 .hud-btn:hover {
     background: var(--info);
@@ -165,76 +329,162 @@ body {
 .hud-btn.warn:hover { background: var(--warn); color: var(--bg); box-shadow: 0 0 12px var(--warn); }
 .hud-btn.danger { border-color: var(--danger); color: var(--danger); }
 .hud-btn.danger:hover { background: var(--danger); color: var(--bg); box-shadow: 0 0 12px var(--danger); }
+.hud-btn.ghost { background: transparent; }
 
-/* -------- Inputs --------------------------------------------- */
+/* Split-picker button = chunky variant for tap targets */
+.split-btn {
+    padding: var(--gap-3) var(--gap-4);
+    font-size: 0.85rem;
+    letter-spacing: 0.18em;
+}
+
+/* =====================================================
+   INPUTS
+   ===================================================== */
 .hud-input, .hud-select {
     background: var(--bg);
     color: var(--text);
     border: 1px solid var(--border);
-    padding: 0.4rem 0.6rem;
+    padding: 0.5rem 0.7rem;
     font-family: var(--font-mono);
     font-size: 0.9rem;
     outline: none;
-    transition: border-color 120ms;
+    transition: border-color 120ms, box-shadow 120ms;
     width: 100%;
 }
 .hud-input:focus, .hud-select:focus {
     border-color: var(--info);
     box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
 }
+.hud-input::placeholder { color: var(--muted); }
 
-/* -------- Top status bar ------------------------------------- */
-.hud-topbar {
+/* =====================================================
+   DASHBOARD LAYOUT
+   - KPI strip (6 metric tiles, equal weight)
+   - 2-up chart row
+   - 2-up records row
+   ===================================================== */
+.kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap-3);
+}
+@media (min-width: 640px)  { .kpi-strip { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .kpi-strip { grid-template-columns: repeat(6, 1fr); } }
+
+.kpi-tile {
     background: var(--panel);
-    border-bottom: 1px solid var(--border);
-    padding: 0.6rem 1rem;
+    border: 1px solid var(--border);
+    padding: var(--gap-3) var(--gap-4);
+    position: relative;
+    transition: border-color 150ms;
+}
+.kpi-tile:hover { border-color: var(--border-2); }
+.kpi-tile .kpi-label {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--muted);
+    font-size: 0.68rem;
+    margin-bottom: var(--gap-1);
+}
+.kpi-tile .kpi-value {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    color: var(--text);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+}
+.kpi-tile .kpi-sub {
+    font-family: var(--font-hud);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    margin-top: 2px;
+}
+.kpi-tile.accent-info  .kpi-value { color: var(--info); }
+.kpi-tile.accent-green .kpi-value { color: var(--hud-green); }
+.kpi-tile.accent-warn  .kpi-value { color: var(--warn); }
+
+/* Two-up rows that collapse on narrow screens */
+.dash-row-charts,
+.dash-row-records {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-4);
+}
+@media (min-width: 1024px) {
+    .dash-row-charts  { grid-template-columns: 2fr 1fr; }
+    .dash-row-records { grid-template-columns: 1fr 1fr; }
+}
+
+/* Chart container — predictable height so canvas sizing is stable */
+.chart-wrap {
+    position: relative;
+    width: 100%;
+    height: 260px;
+}
+.chart-wrap.tall { height: 320px; }
+
+/* Resume CTA = big amber bar at the top when a session is open */
+.resume-bar {
+    border: 1px solid var(--warn);
+    background: linear-gradient(90deg, rgba(255,153,0,0.08) 0%, transparent 70%);
+    padding: var(--gap-3) var(--gap-4);
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    font-family: var(--font-hud);
-    text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 0.72rem;
-    color: var(--muted);
+    justify-content: space-between;
+    gap: var(--gap-3);
     flex-wrap: wrap;
 }
-.hud-topbar .brand {
-    color: var(--info);
-    font-size: 0.92rem;
-    letter-spacing: 0.22em;
+.resume-bar .resume-text {
+    color: var(--warn);
+    font-family: var(--font-mono);
+    font-weight: 500;
 }
-.hud-topbar nav a {
-    color: var(--muted);
-    text-decoration: none;
-    margin-right: 1rem;
-    padding-bottom: 2px;
-    border-bottom: 1px solid transparent;
-}
-.hud-topbar nav a:hover { color: var(--info); border-bottom-color: var(--info); }
-.hud-topbar nav a.active { color: var(--info); border-bottom-color: var(--info); }
-.hud-topbar .right { margin-left: auto; display: flex; gap: 1rem; align-items: center; }
 
-/* -------- Tags / chips --------------------------------------- */
-.tag {
-    display: inline-block;
-    padding: 2px 8px;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-family: var(--font-hud);
+/* PR / session list lines */
+.feed-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
-.tag.chest    { color: var(--info);     border-color: var(--info); }
-.tag.back     { color: var(--hud-green); border-color: var(--hud-green); }
-.tag.legs     { color: var(--warn);     border-color: var(--warn); }
-.tag.shoulders{ color: #C77DFF;          border-color: #C77DFF; }
-.tag.biceps   { color: var(--info);     border-color: var(--info); }
-.tag.triceps  { color: var(--hud-green); border-color: var(--hud-green); }
-.tag.calves   { color: var(--warn);     border-color: var(--warn); }
-.tag.core     { color: var(--info);     border-color: var(--info); }
+.feed-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-2);
+    padding: var(--gap-2) 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+}
+.feed-list li:last-child { border-bottom: none; }
+.feed-list .date { color: var(--muted); font-size: 0.78rem; min-width: 92px; }
+.feed-list .name { color: var(--info); font-family: var(--font-hud); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.78rem; }
+.feed-list .metric { color: var(--hud-green); font-weight: 500; }
+.feed-list .sub { color: var(--muted); font-size: 0.78rem; }
 
-/* -------- Exercise catalog cards ----------------------------- */
+/* =====================================================
+   CATALOG (exercises.html)
+   ===================================================== */
+.catalog-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-3);
+    align-items: center;
+}
+.catalog-toolbar .hud-input { flex: 1 1 240px; max-width: 360px; }
+
+.catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: var(--gap-3);
+}
+@media (min-width: 540px)  { .catalog-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px)  { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1280px) { .catalog-grid { grid-template-columns: repeat(4, 1fr); } }
+
 .exercise-card {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -242,21 +492,35 @@ body {
     position: relative;
     transition: border-color 150ms, transform 150ms;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
 }
 .exercise-card:hover {
     border-color: var(--info);
     transform: translateY(-2px);
 }
-.exercise-card video, .exercise-card img {
+.exercise-card .media {
+    position: relative;
     width: 100%;
-    height: 180px;
-    object-fit: cover;
-    display: block;
-    background: var(--bg);
+    aspect-ratio: 4 / 3;
+    background: var(--bg-elev);
     border-bottom: 1px solid var(--border);
+    overflow: hidden;
+}
+.exercise-card video,
+.exercise-card .media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: var(--bg-elev);
 }
 .exercise-card .body {
-    padding: 0.6rem 0.8rem;
+    padding: var(--gap-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2);
+    flex: 1 1 auto;
 }
 .exercise-card h3 {
     font-family: var(--font-hud);
@@ -264,42 +528,110 @@ body {
     letter-spacing: 0.12em;
     font-size: 0.85rem;
     color: var(--text);
-    margin: 0 0 4px 0;
+    margin: 0;
+    line-height: 1.25;
 }
 .exercise-card .cues {
     color: var(--muted);
     font-size: 0.75rem;
-    line-height: 1.35;
-    margin: 6px 0 0 0;
+    line-height: 1.4;
+    margin: 0;
     padding-left: 1rem;
 }
+.exercise-card .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--gap-2);
+}
 
-/* -------- Logger UI ------------------------------------------ */
+/* =====================================================
+   LOGGER (logger.html)
+   ===================================================== */
+.logger-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-4);
+}
+@media (min-width: 1024px) {
+    .logger-grid { grid-template-columns: minmax(0,1fr) 300px; }
+}
+
+.logger-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-4);
+}
+@media (min-width: 1024px) {
+    .logger-sidebar {
+        position: sticky;
+        top: calc(48px + var(--gap-4));
+        align-self: start;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+    }
+}
+
 .logger-exercise {
     background: var(--panel);
     border: 1px solid var(--border);
     display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    padding: 0.8rem;
+    grid-template-columns: 200px 1fr;
+    gap: var(--gap-4);
+    padding: var(--gap-3) var(--gap-4);
+    position: relative;
 }
-@media (max-width: 720px) {
+.logger-exercise::before, .logger-exercise::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-color: var(--info);
+    border-style: solid;
+    border-width: 0;
+    opacity: 0.7;
+    pointer-events: none;
+}
+.logger-exercise::before {
+    top: -1px; left: -1px;
+    border-top-width: 1px; border-left-width: 1px;
+}
+.logger-exercise::after {
+    bottom: -1px; right: -1px;
+    border-bottom-width: 1px; border-right-width: 1px;
+}
+@media (max-width: 768px) {
     .logger-exercise { grid-template-columns: 1fr; }
 }
-.logger-exercise video, .logger-exercise img {
+.logger-exercise .ex-media {
     width: 100%;
     aspect-ratio: 1/1;
-    object-fit: cover;
-    background: var(--bg);
+    object-fit: contain;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+}
+.logger-exercise .ex-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--gap-3);
+    margin-bottom: var(--gap-2);
+}
+.logger-exercise .ex-title {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--info);
+    font-size: 0.95rem;
+    margin: 0;
 }
 
 .set-row {
     display: grid;
     grid-template-columns: 28px 1fr 1fr 1fr 110px 64px;
-    gap: 0.4rem;
+    gap: var(--gap-2);
     align-items: center;
-    padding: 4px 0;
+    padding: 6px 0;
     border-bottom: 1px dashed var(--border);
 }
 .set-row:last-child { border-bottom: none; }
@@ -308,6 +640,7 @@ body {
     color: var(--muted);
     text-align: right;
     padding-right: 4px;
+    font-size: 0.85rem;
 }
 .set-row .saved-badge {
     color: var(--hud-green);
@@ -323,14 +656,14 @@ body {
         grid-template-columns: 28px 1fr 1fr;
         grid-template-rows: auto auto;
         row-gap: 0.35rem;
-        column-gap: 0.4rem;
+        column-gap: var(--gap-2);
         padding: 8px 0;
     }
     .set-row .idx { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
     .set-row > input[data-field="weight"] { grid-column: 2; grid-row: 1; }
     .set-row > input[data-field="reps"]   { grid-column: 3; grid-row: 1; }
     .set-row > select                      { grid-column: 2 / span 2; grid-row: 2; }
-    .set-row > div                         { grid-column: 1 / span 3; grid-row: 3; display: flex; gap: 0.4rem; }
+    .set-row > div                         { grid-column: 1 / span 3; grid-row: 3; display: flex; gap: var(--gap-2); }
     .set-row > div + button                { grid-column: 1 / span 3; grid-row: 4; }
 }
 
@@ -338,7 +671,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--gap-2);
 }
 .last-time-chips .chip {
     background: var(--bg);
@@ -349,7 +682,9 @@ body {
     font-family: var(--font-mono);
 }
 
-/* -------- Rest timer ring ------------------------------------ */
+/* =====================================================
+   REST TIMER RING
+   ===================================================== */
 .timer-ring {
     --size: 160px;
     width: var(--size);
@@ -365,6 +700,7 @@ body {
         radial-gradient(circle at center, rgba(255,153,0,0.08) 0%, transparent 70%),
         var(--panel);
     font-family: var(--font-mono);
+    margin: 0 auto;
 }
 .timer-ring.running { animation: ringPulse 1s ease-in-out infinite; }
 @keyframes ringPulse {
@@ -384,7 +720,9 @@ body {
     text-transform: uppercase;
 }
 
-/* -------- Modal ---------------------------------------------- */
+/* =====================================================
+   MODAL / DIALOG
+   ===================================================== */
 .hud-modal-backdrop {
     position: fixed;
     inset: 0;
@@ -393,19 +731,110 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 50;
+    padding: var(--gap-4);
 }
 .hud-modal {
     background: var(--panel);
     border: 1px solid var(--info);
     max-width: 720px;
-    width: calc(100% - 2rem);
+    width: 100%;
     max-height: 90vh;
     overflow-y: auto;
-    padding: 1.2rem;
+    padding: var(--gap-5);
     box-shadow: 0 0 60px rgba(0, 229, 255, 0.3);
 }
 
-/* -------- Empty states / loaders ----------------------------- */
+.modal-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--gap-4);
+}
+@media (min-width: 600px) {
+    .modal-detail-grid { grid-template-columns: 260px 1fr; }
+}
+.modal-media {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+.modal-media video, .modal-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* =====================================================
+   TAGS / CHIPS
+   ===================================================== */
+.tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: var(--font-hud);
+    line-height: 1.6;
+}
+.tag.chest    { color: var(--info);      border-color: var(--info); }
+.tag.back     { color: var(--hud-green); border-color: var(--hud-green); }
+.tag.legs     { color: var(--warn);      border-color: var(--warn); }
+.tag.shoulders{ color: #C77DFF;          border-color: #C77DFF; }
+.tag.biceps   { color: var(--info);      border-color: var(--info); }
+.tag.triceps  { color: var(--hud-green); border-color: var(--hud-green); }
+.tag.calves   { color: var(--warn);      border-color: var(--warn); }
+.tag.core     { color: var(--info);      border-color: var(--info); }
+
+/* Filter chips (catalog page) */
+.filter-chip {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px;
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 120ms;
+}
+.filter-chip:hover { color: var(--info); border-color: var(--info); }
+.filter-chip.active {
+    color: var(--bg);
+    background: var(--info);
+    border-color: var(--info);
+}
+
+/* =====================================================
+   PROGRESS TABLE
+   ===================================================== */
+.pr-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+}
+.pr-table th, .pr-table td {
+    padding: var(--gap-2) var(--gap-3);
+    text-align: left;
+    border-bottom: 1px dashed var(--border);
+}
+.pr-table th {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 0.7rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+}
+.pr-table tbody tr:hover { background: rgba(0, 229, 255, 0.04); }
+
+/* =====================================================
+   EMPTY STATES / LOADERS
+   ===================================================== */
 .no-data {
     color: var(--muted);
     font-family: var(--font-hud);
@@ -413,7 +842,7 @@ body {
     letter-spacing: 0.18em;
     font-size: 0.9rem;
     text-align: center;
-    padding: 2rem;
+    padding: var(--gap-6);
     border: 1px dashed var(--border);
 }
 .loader-bar {
@@ -427,25 +856,22 @@ body {
     100% { background-position: -200% 0; }
 }
 
-/* -------- Misc ----------------------------------------------- */
-.dot-sep::after { content: ' · '; color: var(--border); margin: 0 6px; }
-.text-info  { color: var(--info); }
-.text-green { color: var(--hud-green); }
-.text-warn  { color: var(--warn); }
-.text-danger { color: var(--danger); }
-.text-muted { color: var(--muted); }
-
-/* canvas containers */
-.chart-wrap {
-    position: relative;
-    width: 100%;
-    height: 220px;
-}
-
-/* small util */
-.mono { font-family: var(--font-mono); }
-.uppercase-hud {
+/* =====================================================
+   FOOTER
+   ===================================================== */
+.hud-footer {
+    text-align: center;
+    color: var(--muted);
+    padding: var(--gap-5) var(--gap-4);
     font-family: var(--font-hud);
     text-transform: uppercase;
     letter-spacing: 0.18em;
+    font-size: 0.7rem;
 }
+
+/* =====================================================
+   MISC
+   ===================================================== */
+.dot-sep::after { content: ' · '; color: var(--border); margin: 0 6px; }
+.mt-2 { margin-top: var(--gap-2); }
+.mt-3 { margin-top: var(--gap-3); }
