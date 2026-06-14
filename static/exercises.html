@@ -23,18 +23,29 @@
     </header>
 
     <main class="page stack-lg">
-        <section class="hud-panel">
-            <div class="hud-panel-header">
-                <h2>Exercise catalog</h2>
-                <span class="meta" id="cat-count">…</span>
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">[ GYM-OPS // REFERENCE ]</span>
+                <h1>Exercise catalog</h1>
             </div>
+            <div class="head-readout" id="cat-count">…</div>
+        </div>
+
+        <section class="hud-panel">
             <div class="catalog-toolbar">
-                <input id="search" placeholder="Search exercises…" class="hud-input" />
-                <div id="filter-chips" class="row-tight"></div>
+                <div class="field">
+                    <label class="field-label" for="search">[ Search ]</label>
+                    <input id="search" type="search" placeholder="Filter by name…" class="hud-input"
+                           autocomplete="off" autocapitalize="off" spellcheck="false" />
+                </div>
+                <div class="field" style="flex:1 1 100%;">
+                    <span class="field-label">[ Muscle group ]</span>
+                    <div id="filter-chips" class="row-tight" role="group" aria-label="Filter by muscle group"></div>
+                </div>
             </div>
         </section>
 
-        <section id="grid" class="catalog-grid"></section>
+        <section id="grid" class="catalog-grid" aria-label="Exercises"></section>
     </main>
 
     <script src="/static/js/hud.js"></script>

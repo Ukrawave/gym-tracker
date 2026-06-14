@@ -24,26 +24,39 @@
 
     <main class="page stack-lg">
 
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">[ GYM-OPS // SESSION LOGGER ]</span>
+                <h1>Logger</h1>
+            </div>
+            <div class="head-readout">Log sets · drive the rest timer</div>
+        </div>
+
         <!-- Split picker — shown only when no active session -->
         <section id="picker-panel" class="hud-panel">
             <div class="hud-panel-header">
                 <h2>Start a session</h2>
                 <span class="meta">Pick a training split</span>
             </div>
-            <div id="split-buttons" class="row"></div>
+            <div id="split-buttons" class="row" role="group" aria-label="Training splits"></div>
         </section>
 
         <!-- Active session -->
         <section id="session-panel" class="hidden stack">
-            <div class="hud-panel">
+            <div class="hud-panel live">
                 <div class="hud-panel-header">
-                    <h2>Active session<span id="active-category" class="text-info"></span></h2>
+                    <h2><span class="led led-green led-pulse"></span> Active session<span id="active-category" class="text-info"></span></h2>
                     <span class="meta">SID:<span id="active-session-id">--</span> · Start <span id="active-start"></span></span>
                 </div>
-                <div class="row">
-                    <button id="end-session" class="hud-btn success">[ END SESSION ]</button>
-                    <button id="discard-session" class="hud-btn danger">[ DISCARD ]</button>
-                    <input id="session-notes" class="hud-input" placeholder="Session notes (optional)" style="flex:1 1 240px;" />
+                <div class="col">
+                    <div class="field">
+                        <label class="field-label" for="session-notes">[ Session notes ]</label>
+                        <input id="session-notes" class="hud-input" placeholder="Optional — how did it feel?" />
+                    </div>
+                    <div class="row">
+                        <button id="end-session" class="hud-btn success">[ END SESSION ]</button>
+                        <button id="discard-session" class="hud-btn danger">[ DISCARD ]</button>
+                    </div>
                 </div>
             </div>
 
@@ -64,7 +77,10 @@
                             <h2>Add exercise</h2>
                         </div>
                         <div class="col">
-                            <select id="add-exercise-select" class="hud-select"></select>
+                            <div class="field">
+                                <label class="field-label" for="add-exercise-select">[ Exercise ]</label>
+                                <select id="add-exercise-select" class="hud-select"></select>
+                            </div>
                             <button id="add-exercise-btn" class="hud-btn">[ + ADD TO SESSION ]</button>
                         </div>
                     </div>
