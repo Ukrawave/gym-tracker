@@ -25,6 +25,14 @@ process. **No npm, no node_modules, no build step.** Clone, `pip install`, run.
   resume-active-session CTA, ticking real-time UTC + local clocks.
 - **Mission-control aesthetic** — dark theme, monospace typography, neon LEDs, panel chrome
   with corner ticks, status indicators, bracketed uppercase labels. Mobile-first responsive.
+  A modular type scale (`--fs-2xs`…`--fs-2xl`, with `clamp()` hero numerics) drives a clear
+  glance-first hierarchy; each page carries a real `<h1>` masthead.
+- **Built for one-handed gym use** — every control meets a ≥44px tap target, inputs render at
+  16px to suppress iOS zoom-on-focus, and notched phones get safe-area insets. The logger's
+  set-row is an "instrument console": large tabular weight/reps inputs, an unmistakable
+  full-width `[ LOG ]` action, and cyan-ready / green-logged status edges per set.
+- **Accessible** — global `:focus-visible` ring, `prefers-reduced-motion` support, labeled
+  inputs, and keyboard-operable catalog cards (`role=button`, Enter/Space to open).
 - **PR engine** — Brzycki 1RM with reps clamped to [1, 36]; re-walks the per-exercise
   timeline on every set write and on session close to stamp new PRs (or invalidate them
   if you edit history downward).
@@ -35,7 +43,7 @@ process. **No npm, no node_modules, no build step.** Clone, `pip install`, run.
 |-------------|---------------------------------------------------------|--------------------------------------|
 | Backend     | FastAPI + stdlib `sqlite3` + Pydantic                   | Minimal deps, fast, single binary    |
 | Database    | SQLite (one file, foreign keys ON)                      | Single-user, zero admin              |
-| Frontend    | Vanilla HTML5 / ES2020 / Tailwind CDN / Share Tech Mono | No build step, fully static          |
+| Frontend    | Vanilla HTML5 / ES2020 / self-hosted CSS / Share Tech Mono | No build step, no Tailwind, fully static |
 | Charts      | Chart.js (CDN)                                          | Canvas-based, fits the HUD theme     |
 | Media       | Read-only volume mount of an exercise-GIF directory     | Works offline at the gym             |
 
@@ -181,12 +189,15 @@ Four pages, each loads `hud.js` (clock / LEDs / beeper / rest timer / modal) + `
 - `static/logger.html`    session logger      → `logger.js`
 - `static/progress.html`  per-exercise charts → `progress.js`
 
-Tailwind Play CDN handles layout/spacing utilities; `static/css/hud.css` owns the design
-tokens, panel chrome, neon LEDs, timer ring, and HUD typography.
+There is no CSS framework — `static/css/hud.css` is the single hand-written stylesheet that
+owns everything: design tokens (color + a `--fs-*` type scale + spacing), layout primitives,
+panel chrome, neon LEDs, timer ring, component states (`:focus-visible`, hover/active), and
+HUD typography. All assets are served directly by FastAPI; no build step, no `node_modules`.
 
 ### Design tokens
 
 ```css
+/* Identity colours */
 --bg:        #0A0F14   /* deep space */
 --panel:     #101820   /* technical panel */
 --panel-2:   #14243B   /* hover / accent */
@@ -197,6 +208,13 @@ tokens, panel chrome, neon LEDs, timer ring, and HUD typography.
 --info:      #00E5FF   /* primary metric */
 --text:      #C7D2D0
 --muted:     #8A9A86
+
+/* Derived tints — same hues at low alpha for washes, hover, focus rings */
+--info-dim:  rgba(0,229,255,.12)   --green-dim: rgba(0,255,102,.12)   /* …warn/danger-dim too */
+
+/* Type scale — modular ramp (~1.25); hero numerics use clamp() */
+--fs-2xs: .65rem  --fs-xs: .72rem  --fs-sm: .82rem  --fs-base: .95rem  --fs-md: 1.1rem
+--fs-lg:  1.35rem  --fs-xl: clamp(1.6rem,1.2rem+2vw,2.1rem)  --fs-2xl: clamp(2rem,1.4rem+3.4vw,3rem)
 ```
 
 Numbers, inputs, table cells use `JetBrains Mono`. Headers and labels use `Share Tech Mono`,

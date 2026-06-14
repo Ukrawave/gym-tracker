@@ -44,7 +44,8 @@
             return;
         }
         grid.innerHTML = filtered.map(ex => `
-            <article class="exercise-card" data-id="${ex.id}">
+            <article class="exercise-card" data-id="${ex.id}" role="button" tabindex="0"
+                     aria-label="${ex.name} — ${ex.muscle_group}. View details.">
                 <div class="media">
                     <video src="${hudUtil.mediaUrl(ex.media_slug, 'mp4')}" autoplay loop muted playsinline
                         poster="${hudUtil.mediaUrl(ex.media_slug, 'gif')}"
@@ -61,7 +62,12 @@
             </article>
         `).join('');
         grid.querySelectorAll('.exercise-card').forEach(card => {
-            card.addEventListener('click', () => openDetail(card.dataset.id));
+            const open = () => openDetail(card.dataset.id);
+            card.addEventListener('click', open);
+            // Keyboard parity: a role=button card must open on Enter/Space.
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+            });
         });
     }
 

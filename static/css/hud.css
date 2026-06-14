@@ -22,8 +22,36 @@
     --text:      #C7D2D0;
     --muted:     #8A9A86;
 
+    /* Derived tints/shades of the identity colours. These let panels, hover
+       washes and focus rings read as the SAME hue family without introducing
+       new brand colours. rgba kept explicit so they layer over the dark base. */
+    --info-dim:    rgba(0, 229, 255, 0.12);
+    --info-faint:  rgba(0, 229, 255, 0.05);
+    --green-dim:   rgba(0, 255, 102, 0.12);
+    --warn-dim:    rgba(255, 153, 0, 0.12);
+    --danger-dim:  rgba(255, 51, 51, 0.12);
+    --text-bright: #EAF2F0;   /* for the rare element that must out-rank --text */
+    --grid-line:   rgba(30, 41, 59, 0.6);
+
     --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, monospace;
     --font-hud:  'Share Tech Mono', 'JetBrains Mono', monospace;
+
+    /* Type scale — a deliberate modular ramp (~1.25) so headings, body, data
+       and chrome sit at distinct, repeatable sizes instead of the old flat
+       0.7–0.9rem cluster. Hero numerics use clamp() to stay glanceable on a
+       phone yet command the dashboard on a wide screen. */
+    --fs-2xs:  0.65rem;
+    --fs-xs:   0.72rem;
+    --fs-sm:   0.82rem;
+    --fs-base: 0.95rem;
+    --fs-md:   1.1rem;
+    --fs-lg:   1.35rem;
+    --fs-xl:   clamp(1.6rem, 1.2rem + 2vw, 2.1rem);
+    --fs-2xl:  clamp(2rem, 1.4rem + 3.4vw, 3rem);
+
+    /* Tracking presets — chrome is wide-tracked, data is tight. */
+    --track-chrome: 0.18em;
+    --track-tight:  0.02em;
 
     /* layout scale */
     --gap-1: 0.25rem;
@@ -34,9 +62,30 @@
     --gap-6: 2rem;
 
     --container-max: 1400px;
+    --topbar-h: 52px;          /* single source of truth for the sticky bar */
+    --tap: 44px;               /* minimum interactive target (mobile-first) */
+    --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--info);
 }
 
 * { box-sizing: border-box; }
+
+/* One global, consistent keyboard-focus treatment. Mouse/touch users never
+   see it (:focus-visible), keyboard users always do — across every page. */
+:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+/* Honour reduced-motion: kill the ambient pulses/animations but keep the
+   static neon styling intact for anyone who asks the OS for calm. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+}
 
 html, body {
     background-color: var(--bg);
@@ -73,6 +122,11 @@ body {
     max-width: var(--container-max);
     margin: 0 auto;
     padding: var(--gap-4);
+    /* viewport-fit=cover is set on every page; pad the gutters past the
+       notch / rounded corners on phones so nothing clips. */
+    padding-left:  max(var(--gap-4), env(safe-area-inset-left));
+    padding-right: max(var(--gap-4), env(safe-area-inset-right));
+    padding-bottom: max(var(--gap-6), env(safe-area-inset-bottom));
 }
 @media (min-width: 640px) {
     .page { padding: var(--gap-5); }
@@ -116,43 +170,56 @@ body {
    TOP BAR
    ===================================================== */
 .hud-topbar {
-    background: var(--panel);
+    background: linear-gradient(180deg, var(--panel) 0%, var(--bg-elev) 100%);
     border-bottom: 1px solid var(--border);
-    padding: 0.6rem var(--gap-4);
+    padding: 0 var(--gap-4);
+    min-height: var(--topbar-h);
     display: flex;
     align-items: center;
     gap: var(--gap-5);
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    font-size: var(--fs-xs);
     color: var(--muted);
     flex-wrap: wrap;
     position: sticky;
     top: 0;
     z-index: 40;
     backdrop-filter: blur(6px);
+    /* keep the brand/clock clear of a notch in landscape */
+    padding-left:  max(var(--gap-4), env(safe-area-inset-left));
+    padding-right: max(var(--gap-4), env(safe-area-inset-right));
 }
 .hud-topbar .brand {
     color: var(--info);
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     letter-spacing: 0.22em;
     flex-shrink: 0;
+    text-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
 }
 .hud-topbar nav {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--gap-4);
+    gap: var(--gap-2);
 }
 .hud-topbar nav a {
     color: var(--muted);
     text-decoration: none;
-    padding: 2px 0;
-    border-bottom: 1px solid transparent;
-    transition: color 120ms, border-color 120ms;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding: 0 var(--gap-2);
+    border-bottom: 2px solid transparent;
+    transition: color 120ms, border-color 120ms, background 120ms;
 }
 .hud-topbar nav a:hover { color: var(--info); border-bottom-color: var(--info); }
-.hud-topbar nav a.active { color: var(--info); border-bottom-color: var(--info); }
+.hud-topbar nav a:focus-visible { box-shadow: var(--focus-ring); }
+.hud-topbar nav a.active {
+    color: var(--info);
+    border-bottom-color: var(--info);
+    background: var(--info-faint);
+}
 .hud-topbar .right {
     margin-left: auto;
     display: flex;
@@ -161,8 +228,8 @@ body {
     flex-wrap: wrap;
 }
 @media (max-width: 640px) {
-    .hud-topbar { gap: var(--gap-3); padding: 0.5rem var(--gap-3); }
-    .hud-topbar .right { gap: var(--gap-3); font-size: 0.65rem; }
+    .hud-topbar { gap: var(--gap-3); padding: var(--gap-2) var(--gap-3); }
+    .hud-topbar .right { gap: var(--gap-3); font-size: var(--fs-2xs); }
     /* On narrow screens we drop the noisy mission-control labels but keep
        the live data: DB LED, clock, operator. The brand + nav already say
        where you are. */
@@ -175,16 +242,16 @@ body {
 .hud-label {
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: var(--track-chrome);
     color: var(--muted);
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
 }
 .hud-value {
     font-family: var(--font-mono);
     color: var(--text);
-    font-size: 1.6rem;
+    font-size: var(--fs-lg);
     font-weight: 500;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--track-tight);
     line-height: 1.1;
 }
 .hud-h1 {
@@ -198,36 +265,101 @@ body {
 .uppercase-hud {
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: var(--track-chrome);
 }
 .text-info  { color: var(--info); }
 .text-green { color: var(--hud-green); }
 .text-warn  { color: var(--warn); }
 .text-danger { color: var(--danger); }
 .text-muted { color: var(--muted); }
-.text-xs { font-size: 0.72rem; }
-.text-sm { font-size: 0.85rem; }
+.text-xs { font-size: var(--fs-xs); }
+.text-sm { font-size: var(--fs-sm); }
 .mono { font-family: var(--font-mono); }
+
+/* =====================================================
+   PAGE HEADER  (eyebrow + H1 + optional readout)
+   The masthead for each screen: a bracketed system eyebrow, the real page
+   title as an <h1>, and an optional right-aligned status line. Gives every
+   page one unambiguous "you are here / this is the most important thing"
+   read before the panels begin.
+   ===================================================== */
+.page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--gap-3);
+    flex-wrap: wrap;
+    padding-bottom: var(--gap-3);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+/* a short neon tick under the title edge — the "active channel" marker */
+.page-head::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 64px;
+    height: 2px;
+    background: var(--info);
+    box-shadow: 0 0 10px var(--info);
+}
+.page-head .eyebrow {
+    display: block;
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: var(--track-chrome);
+    color: var(--muted);
+    font-size: var(--fs-xs);
+    margin-bottom: var(--gap-1);
+}
+.page-head h1 {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-bright);
+    font-size: var(--fs-xl);
+    line-height: 1.05;
+    margin: 0;
+}
+.page-head .head-readout {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    font-size: var(--fs-xs);
+    text-align: right;
+}
 
 /* =====================================================
    PANELS
    ===================================================== */
 .hud-panel {
-    background: var(--panel);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 40%),
+        var(--panel);
     border: 1px solid var(--border);
     position: relative;
     padding: var(--gap-4);
 }
+@media (min-width: 640px) { .hud-panel { padding: var(--gap-5); } }
 .hud-panel.compact { padding: var(--gap-3); }
+/* "live" panel = a session/process is actively running. Green status edge so
+   the operator can tell at a glance the system is hot. */
+.hud-panel.live {
+    border-left: 3px solid var(--hud-green);
+    box-shadow: inset 0 0 30px rgba(0, 255, 102, 0.04);
+}
+.hud-panel.live::before { border-color: var(--hud-green); }
 .hud-panel::before, .hud-panel::after {
     content: '';
     position: absolute;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-color: var(--info);
     border-style: solid;
     border-width: 0;
-    opacity: 0.85;
+    opacity: 0.8;
     pointer-events: none;
 }
 .hud-panel::before {
@@ -247,18 +379,18 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: var(--gap-2);
+    padding-bottom: var(--gap-3);
     border-bottom: 1px solid var(--border);
-    margin-bottom: var(--gap-3);
+    margin-bottom: var(--gap-4);
     gap: var(--gap-3);
     flex-wrap: wrap;
 }
 .hud-panel-header h2 {
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     color: var(--info);
-    font-size: 0.82rem;
+    font-size: var(--fs-sm);
     margin: 0;
     display: flex;
     align-items: center;
@@ -269,7 +401,7 @@ body {
     font-family: var(--font-hud);
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    font-size: 0.7rem;
+    font-size: var(--fs-xs);
 }
 
 /* =====================================================
@@ -302,18 +434,23 @@ body {
     background: var(--panel-2);
     color: var(--info);
     border: 1px solid var(--info);
-    padding: 0.45rem 0.9rem;
+    /* min-height locks every button to the 44px tap floor; padding still
+       sets the horizontal hit area and optical centring. */
+    min-height: var(--tap);
+    padding: 0.5rem 1rem;
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    font-size: var(--fs-sm);
     cursor: pointer;
-    transition: all 120ms ease;
+    transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease, transform 80ms ease;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: var(--gap-2);
     line-height: 1;
+    -webkit-tap-highlight-color: transparent;
 }
 .hud-btn:hover {
     background: var(--info);
@@ -321,7 +458,18 @@ body {
     box-shadow: 0 0 12px var(--info);
 }
 .hud-btn:active { transform: translateY(1px); }
+.hud-btn:focus-visible { box-shadow: var(--focus-ring); }
 .hud-btn[disabled] { opacity: 0.4; pointer-events: none; }
+
+/* A compact, secondary action (set-row [-]/[DEL], header [X]). Keeps the full
+   44px tap height the brief requires, but trims horizontal padding so it stays
+   visually light inside a dense data row. Opt-in only. */
+.hud-btn.icon {
+    min-height: var(--tap);
+    min-width: var(--tap);
+    padding: 0.4rem 0.5rem;
+    letter-spacing: 0.06em;
+}
 
 .hud-btn.success { border-color: var(--hud-green); color: var(--hud-green); }
 .hud-btn.success:hover { background: var(--hud-green); color: var(--bg); box-shadow: 0 0 12px var(--hud-green); }
@@ -333,9 +481,11 @@ body {
 
 /* Split-picker button = chunky variant for tap targets */
 .split-btn {
+    min-height: 56px;
     padding: var(--gap-3) var(--gap-4);
-    font-size: 0.85rem;
-    letter-spacing: 0.18em;
+    font-size: var(--fs-base);
+    letter-spacing: 0.16em;
+    flex: 1 1 200px;
 }
 
 /* =====================================================
@@ -345,18 +495,53 @@ body {
     background: var(--bg);
     color: var(--text);
     border: 1px solid var(--border);
+    min-height: var(--tap);
     padding: 0.5rem 0.7rem;
     font-family: var(--font-mono);
-    font-size: 0.9rem;
+    /* 16px keeps iOS Safari from zooming the viewport when a field gains
+       focus — critical for one-handed logging at the gym. */
+    font-size: 16px;
     outline: none;
     transition: border-color 120ms, box-shadow 120ms;
     width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
 }
 .hud-input:focus, .hud-select:focus {
     border-color: var(--info);
     box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
 }
-.hud-input::placeholder { color: var(--muted); }
+.hud-input:focus-visible, .hud-select:focus-visible {
+    border-color: var(--info);
+    box-shadow: var(--focus-ring);
+}
+.hud-input::placeholder { color: var(--muted); opacity: 1; }
+
+/* Custom caret for selects — native arrows clash with the HUD chrome. Drawn
+   in --info so the control reads as part of the system. */
+.hud-select {
+    background-image:
+        linear-gradient(45deg, transparent 50%, var(--info) 50%),
+        linear-gradient(135deg, var(--info) 50%, transparent 50%);
+    background-position:
+        calc(100% - 18px) calc(50% - 2px),
+        calc(100% - 12px) calc(50% - 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 2rem;
+}
+
+/* A labelled field group: a bracketed HUD caption sitting directly above its
+   control. Used to give every input a visible, programmatic label. */
+.field { display: flex; flex-direction: column; gap: var(--gap-1); }
+.field > .field-label {
+    font-family: var(--font-hud);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    font-size: var(--fs-xs);
+}
 
 /* =====================================================
    DASHBOARD LAYOUT
@@ -375,34 +560,46 @@ body {
 .kpi-tile {
     background: var(--panel);
     border: 1px solid var(--border);
+    border-left: 2px solid var(--border-2);
     padding: var(--gap-3) var(--gap-4);
     position: relative;
-    transition: border-color 150ms;
+    transition: border-color 150ms, transform 150ms;
+    display: flex;
+    flex-direction: column;
+    min-height: 96px;
+    justify-content: center;
 }
-.kpi-tile:hover { border-color: var(--border-2); }
+.kpi-tile:hover { border-color: var(--border-2); transform: translateY(-1px); }
 .kpi-tile .kpi-label {
     font-family: var(--font-hud);
     text-transform: uppercase;
     letter-spacing: 0.16em;
     color: var(--muted);
-    font-size: 0.68rem;
+    font-size: var(--fs-xs);
     margin-bottom: var(--gap-1);
 }
 .kpi-tile .kpi-value {
     font-family: var(--font-mono);
-    font-size: 1.5rem;
-    color: var(--text);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    line-height: 1.1;
+    font-size: var(--fs-xl);
+    color: var(--text-bright);
+    font-weight: 700;
+    letter-spacing: var(--track-tight);
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
 }
 .kpi-tile .kpi-sub {
     font-family: var(--font-hud);
-    font-size: 0.65rem;
+    font-size: var(--fs-2xs);
     color: var(--muted);
     letter-spacing: 0.12em;
-    margin-top: 2px;
+    margin-top: var(--gap-1);
+    text-transform: uppercase;
 }
+/* Accent tiles carry their hue on the left status bar AND the numeral, so the
+   colour reads as a category signal rather than loose decoration. */
+.kpi-tile.accent-info  { border-left-color: var(--info); }
+.kpi-tile.accent-green { border-left-color: var(--hud-green); }
+.kpi-tile.accent-warn  { border-left-color: var(--warn); }
 .kpi-tile.accent-info  .kpi-value { color: var(--info); }
 .kpi-tile.accent-green .kpi-value { color: var(--hud-green); }
 .kpi-tile.accent-warn  .kpi-value { color: var(--warn); }
@@ -430,18 +627,29 @@ body {
 /* Resume CTA = big amber bar at the top when a session is open */
 .resume-bar {
     border: 1px solid var(--warn);
-    background: linear-gradient(90deg, rgba(255,153,0,0.08) 0%, transparent 70%);
-    padding: var(--gap-3) var(--gap-4);
+    border-left: 4px solid var(--warn);
+    background:
+        linear-gradient(90deg, var(--warn-dim) 0%, transparent 70%),
+        var(--panel);
+    padding: var(--gap-4);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--gap-3);
+    gap: var(--gap-4);
     flex-wrap: wrap;
+    box-shadow: 0 0 24px rgba(255, 153, 0, 0.12);
 }
 .resume-bar .resume-text {
     color: var(--warn);
     font-family: var(--font-mono);
     font-weight: 500;
+    font-size: var(--fs-md);
+    margin-top: 2px;
+}
+.resume-bar .hud-btn { flex-shrink: 0; }
+/* On a phone the resume action should be the full-width primary target. */
+@media (max-width: 540px) {
+    .resume-bar .hud-btn { width: 100%; }
 }
 
 /* PR / session list lines */
@@ -453,17 +661,17 @@ body {
 .feed-list li {
     display: flex;
     align-items: center;
-    gap: var(--gap-2);
-    padding: var(--gap-2) 0;
+    gap: var(--gap-3);
+    padding: var(--gap-3) 0;
     border-bottom: 1px dashed var(--border);
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     flex-wrap: wrap;
 }
 .feed-list li:last-child { border-bottom: none; }
-.feed-list .date { color: var(--muted); font-size: 0.78rem; min-width: 92px; }
-.feed-list .name { color: var(--info); font-family: var(--font-hud); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.78rem; }
-.feed-list .metric { color: var(--hud-green); font-weight: 500; }
-.feed-list .sub { color: var(--muted); font-size: 0.78rem; }
+.feed-list .date { color: var(--muted); font-size: var(--fs-xs); min-width: 92px; font-variant-numeric: tabular-nums; }
+.feed-list .name { color: var(--info); font-family: var(--font-hud); text-transform: uppercase; letter-spacing: 0.12em; font-size: var(--fs-xs); flex: 1 1 auto; }
+.feed-list .metric { color: var(--hud-green); font-weight: 700; font-variant-numeric: tabular-nums; }
+.feed-list .sub { color: var(--muted); font-size: var(--fs-xs); }
 
 /* =====================================================
    CATALOG (exercises.html)
@@ -472,14 +680,15 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: var(--gap-3);
-    align-items: center;
+    align-items: flex-end;
 }
+.catalog-toolbar .field { flex: 1 1 240px; max-width: 360px; }
 .catalog-toolbar .hud-input { flex: 1 1 240px; max-width: 360px; }
 
 .catalog-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
-    gap: var(--gap-3);
+    gap: var(--gap-4);
 }
 @media (min-width: 540px)  { .catalog-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 900px)  { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
@@ -490,7 +699,7 @@ body {
     border: 1px solid var(--border);
     overflow: hidden;
     position: relative;
-    transition: border-color 150ms, transform 150ms;
+    transition: border-color 150ms, transform 150ms, box-shadow 150ms;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -498,6 +707,11 @@ body {
 .exercise-card:hover {
     border-color: var(--info);
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 0 1px var(--info-dim);
+}
+.exercise-card:focus-visible {
+    border-color: var(--info);
+    box-shadow: var(--focus-ring);
 }
 .exercise-card .media {
     position: relative;
@@ -516,7 +730,7 @@ body {
     background: var(--bg-elev);
 }
 .exercise-card .body {
-    padding: var(--gap-3);
+    padding: var(--gap-3) var(--gap-4);
     display: flex;
     flex-direction: column;
     gap: var(--gap-2);
@@ -525,11 +739,11 @@ body {
 .exercise-card h3 {
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-size: 0.85rem;
-    color: var(--text);
+    letter-spacing: 0.1em;
+    font-size: var(--fs-sm);
+    color: var(--text-bright);
     margin: 0;
-    line-height: 1.25;
+    line-height: 1.3;
 }
 .exercise-card .cues {
     color: var(--muted);
@@ -565,27 +779,29 @@ body {
 @media (min-width: 1024px) {
     .logger-sidebar {
         position: sticky;
-        top: calc(48px + var(--gap-4));
+        top: calc(var(--topbar-h) + var(--gap-4));
         align-self: start;
-        max-height: calc(100vh - 80px);
+        max-height: calc(100vh - var(--topbar-h) - var(--gap-5));
         overflow-y: auto;
     }
 }
 
 .logger-exercise {
-    background: var(--panel);
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.015) 0%, transparent 30%),
+        var(--panel);
     border: 1px solid var(--border);
     display: grid;
     grid-template-columns: 200px 1fr;
     gap: var(--gap-4);
-    padding: var(--gap-3) var(--gap-4);
+    padding: var(--gap-4);
     position: relative;
 }
 .logger-exercise::before, .logger-exercise::after {
     content: '';
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-color: var(--info);
     border-style: solid;
     border-width: 0;
@@ -615,78 +831,123 @@ body {
     justify-content: space-between;
     align-items: center;
     gap: var(--gap-3);
-    margin-bottom: var(--gap-2);
+    margin-bottom: var(--gap-3);
+    padding-bottom: var(--gap-2);
+    border-bottom: 1px solid var(--border);
 }
 .logger-exercise .ex-title {
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.1em;
     color: var(--info);
-    font-size: 0.95rem;
+    font-size: var(--fs-md);
+    line-height: 1.1;
     margin: 0;
 }
 
+/* ----------------------------------------------------------------
+   SET ROW — the instrument console.
+   Weight & reps are the mission-critical inputs, so they read as large
+   tabular numerals. The whole row carries a saved/unsaved state:
+     · unsaved  → bright, a cyan ready-edge, the LOG action lit green
+     · saved    → calmer, a solid green logged-edge + [ SAVED ] readout
+   Child ORDER and data-attrs are a hard contract (the mobile grid below
+   and logger.js both key off them) — restyle only, never re-order.
+   ---------------------------------------------------------------- */
 .set-row {
     display: grid;
-    grid-template-columns: 28px 1fr 1fr 1fr 110px 64px;
+    grid-template-columns: 32px 1fr 1fr 1fr 96px 56px;
     gap: var(--gap-2);
     align-items: center;
-    padding: 6px 0;
+    padding: var(--gap-2) var(--gap-2) var(--gap-2) var(--gap-2);
     border-bottom: 1px dashed var(--border);
+    border-left: 3px solid transparent;
+    transition: border-color 150ms, background 150ms;
 }
 .set-row:last-child { border-bottom: none; }
+/* Unsaved row = ready to log. Cyan ready-edge appears when any field inside
+   has focus, so the operator always sees which set they're filling. */
+.set-row:focus-within {
+    border-left-color: var(--info);
+    background: var(--info-faint);
+}
+/* Saved row = logged. Solid green edge + dimmed inputs (they're disabled). */
+.set-row:has(.saved-badge) { border-left-color: var(--hud-green); }
 .set-row .idx {
     font-family: var(--font-hud);
     color: var(--muted);
-    text-align: right;
-    padding-right: 4px;
-    font-size: 0.85rem;
+    text-align: center;
+    font-size: var(--fs-md);
+    font-variant-numeric: tabular-nums;
 }
+.set-row:has(.saved-badge) .idx { color: var(--hud-green); }
+/* The two numeric inputs are the hero of this row: big, centred, tabular. */
+.set-row > input[data-field="weight"],
+.set-row > input[data-field="reps"] {
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-align: center;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    padding: 0.4rem 0.3rem;
+}
+.set-row > select { font-size: var(--fs-sm); }
 .set-row .saved-badge {
     color: var(--hud-green);
     font-family: var(--font-hud);
-    font-size: 0.7rem;
-    letter-spacing: 0.12em;
+    font-size: var(--fs-xs);
+    letter-spacing: 0.1em;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
+/* The LOG action — make it unmistakable and full-width within its cell. */
+.set-row .hud-btn.success { width: 100%; padding-inline: 0.4rem; }
 
-/* Mobile: collapse the 6-column set row into a 2x3 stack so phone users
-   logging at the gym don't lose half the controls off-screen. */
+/* Mobile: collapse the 6-column set row into a stacked console so phone users
+   logging at the gym keep every control on-screen. The LOG action becomes a
+   full-width primary target. Selectors below MUST match logger.js's child
+   order: .idx / weight / reps / select / div(save) / button(del). */
 @media (max-width: 540px) {
     .set-row {
-        grid-template-columns: 28px 1fr 1fr;
-        grid-template-rows: auto auto;
-        row-gap: 0.35rem;
+        grid-template-columns: 34px 1fr 1fr;
+        grid-template-rows: auto auto auto auto;
+        row-gap: 0.5rem;
         column-gap: var(--gap-2);
-        padding: 8px 0;
+        padding: var(--gap-3) 0 var(--gap-3) 3px;
     }
-    .set-row .idx { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
-    .set-row > input[data-field="weight"] { grid-column: 2; grid-row: 1; }
-    .set-row > input[data-field="reps"]   { grid-column: 3; grid-row: 1; }
+    .set-row .idx { grid-column: 1; grid-row: 1 / span 2; align-self: center; font-size: var(--fs-lg); }
+    .set-row > input[data-field="weight"] { grid-column: 2; grid-row: 1; min-height: 52px; font-size: 1.4rem; }
+    .set-row > input[data-field="reps"]   { grid-column: 3; grid-row: 1; min-height: 52px; font-size: 1.4rem; }
     .set-row > select                      { grid-column: 2 / span 2; grid-row: 2; }
     .set-row > div                         { grid-column: 1 / span 3; grid-row: 3; display: flex; gap: var(--gap-2); }
+    .set-row .hud-btn.success              { min-height: 50px; font-size: var(--fs-base); }
     .set-row > div + button                { grid-column: 1 / span 3; grid-row: 4; }
 }
 
 .last-time-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: var(--gap-2);
+    gap: var(--gap-2);
+    margin-bottom: var(--gap-3);
 }
 .last-time-chips .chip {
     background: var(--bg);
-    border: 1px solid var(--border);
-    padding: 2px 6px;
-    color: var(--muted);
-    font-size: 0.72rem;
+    border: 1px solid var(--border-2);
+    padding: 4px 8px;
+    color: var(--text);
+    font-size: var(--fs-xs);
     font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
 }
 
 /* =====================================================
    REST TIMER RING
    ===================================================== */
 .timer-ring {
-    --size: 160px;
+    --size: 168px;
     width: var(--size);
     height: var(--size);
     border-radius: 50%;
@@ -696,6 +957,7 @@ body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    gap: var(--gap-1);
     background:
         radial-gradient(circle at center, rgba(255,153,0,0.08) 0%, transparent 70%),
         var(--panel);
@@ -708,16 +970,20 @@ body {
     50%      { box-shadow: 0 0 40px rgba(255,153,0,0.6),  inset 0 0 30px rgba(255,153,0,0.3); }
 }
 .timer-ring .seconds {
-    font-size: 2.4rem;
+    font-size: 2.6rem;
+    font-weight: 500;
     color: var(--warn);
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
 }
 .timer-ring .label {
     font-family: var(--font-hud);
-    letter-spacing: 0.2em;
+    letter-spacing: 0.28em;
     color: var(--muted);
-    font-size: 0.7rem;
+    font-size: var(--fs-2xs);
     text-transform: uppercase;
+    padding-left: 0.28em;
 }
 
 /* =====================================================
@@ -770,14 +1036,14 @@ body {
    ===================================================== */
 .tag {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 3px 8px;
     border: 1px solid var(--border);
     color: var(--muted);
-    font-size: 0.7rem;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     font-family: var(--font-hud);
-    line-height: 1.6;
+    line-height: 1.5;
 }
 .tag.chest    { color: var(--info);      border-color: var(--info); }
 .tag.back     { color: var(--hud-green); border-color: var(--hud-green); }
@@ -793,44 +1059,60 @@ body {
     background: transparent;
     border: 1px solid var(--border);
     color: var(--muted);
-    padding: 4px 10px;
+    min-height: var(--tap);
+    padding: 0 0.9rem;
+    display: inline-flex;
+    align-items: center;
     font-family: var(--font-hud);
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
     cursor: pointer;
-    transition: all 120ms;
+    transition: color 120ms, border-color 120ms, background 120ms;
+    -webkit-tap-highlight-color: transparent;
 }
 .filter-chip:hover { color: var(--info); border-color: var(--info); }
+.filter-chip:focus-visible { box-shadow: var(--focus-ring); }
 .filter-chip.active {
     color: var(--bg);
     background: var(--info);
     border-color: var(--info);
+    font-weight: 700;
 }
 
 /* =====================================================
    PROGRESS TABLE
    ===================================================== */
+/* Let the 5-column table scroll horizontally inside its panel rather than
+   force the whole page wider than 360px. */
+#pr-table { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .pr-table {
     width: 100%;
     border-collapse: collapse;
     font-family: var(--font-mono);
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
+    min-width: 460px;
+    font-variant-numeric: tabular-nums;
 }
 .pr-table th, .pr-table td {
-    padding: var(--gap-2) var(--gap-3);
+    padding: var(--gap-3);
     text-align: left;
     border-bottom: 1px dashed var(--border);
+    white-space: nowrap;
 }
 .pr-table th {
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.15em;
-    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    font-size: var(--fs-xs);
     color: var(--muted);
     border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--panel);
 }
-.pr-table tbody tr:hover { background: rgba(0, 229, 255, 0.04); }
+.pr-table tbody tr:first-child { background: var(--green-dim); }
+.pr-table tbody tr:hover { background: rgba(0, 229, 255, 0.06); }
 
 /* =====================================================
    EMPTY STATES / LOADERS
@@ -839,12 +1121,16 @@ body {
     color: var(--muted);
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 0.9rem;
+    letter-spacing: 0.16em;
+    font-size: var(--fs-sm);
     text-align: center;
-    padding: var(--gap-6);
-    border: 1px dashed var(--border);
+    padding: var(--gap-6) var(--gap-4);
+    border: 1px dashed var(--border-2);
+    background:
+        repeating-linear-gradient(45deg, transparent 0 10px, rgba(138,154,134,0.03) 10px 11px);
+    line-height: 1.6;
 }
+.no-data.text-danger { color: var(--danger); border-color: var(--danger); }
 .loader-bar {
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--info), transparent);
@@ -865,8 +1151,8 @@ body {
     padding: var(--gap-5) var(--gap-4);
     font-family: var(--font-hud);
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    font-size: var(--fs-xs);
 }
 
 /* =====================================================

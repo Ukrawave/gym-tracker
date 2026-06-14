@@ -27,8 +27,16 @@
 
     <main class="page stack-lg">
 
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">[ GYM-OPS // MISSION CONTROL ]</span>
+                <h1>Dashboard</h1>
+            </div>
+            <div class="head-readout">Operator Hugo · all systems nominal</div>
+        </div>
+
         <!-- Resume CTA: appears only when an open session exists. -->
-        <section id="resume-cta" class="hidden">
+        <section id="resume-cta" class="hidden" aria-label="Active session">
             <div class="resume-bar">
                 <div>
                     <div class="hud-label">[ ACTIVE SESSION DETECTED ]</div>
@@ -39,7 +47,7 @@
         </section>
 
         <!-- KPI strip: 6 single-row metrics. Equal weight, scannable. -->
-        <section class="kpi-strip">
+        <section class="kpi-strip" aria-label="Training telemetry">
             <div class="kpi-tile accent-info">
                 <div class="kpi-label">Sessions</div>
                 <div class="kpi-value" id="tel-total-sessions">—</div>

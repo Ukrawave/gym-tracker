@@ -24,12 +24,19 @@
     </header>
 
     <main class="page stack-lg">
-        <section class="hud-panel">
-            <div class="hud-panel-header">
-                <h2>Exercise progression</h2>
-                <span class="meta" id="exercise-meta">[ select an exercise ]</span>
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">[ GYM-OPS // TELEMETRY ]</span>
+                <h1>Progress</h1>
             </div>
-            <select id="exercise-picker" class="hud-select" style="max-width:480px;"></select>
+            <div class="head-readout" id="exercise-meta">[ select an exercise ]</div>
+        </div>
+
+        <section class="hud-panel">
+            <div class="field" style="max-width:480px;">
+                <label class="field-label" for="exercise-picker">[ Exercise ]</label>
+                <select id="exercise-picker" class="hud-select"></select>
+            </div>
         </section>
 
         <div class="grid grid-2">

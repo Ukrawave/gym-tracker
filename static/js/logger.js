@@ -128,7 +128,7 @@
             <div>
                 <div class="ex-title-row">
                     <h3 class="ex-title">${ex.name}</h3>
-                    <button class="hud-btn danger" data-action="remove-exercise" data-ex-idx="${ridx}">[ X ]</button>
+                    <button class="hud-btn danger icon" data-action="remove-exercise" data-ex-idx="${ridx}" aria-label="Remove ${ex.name} from session">[ X ]</button>
                 </div>
                 <div class="hud-label">[ LAST TIME ]</div>
                 <div class="last-time-chips" data-last-chips="${ridx}">…</div>
@@ -146,27 +146,30 @@
 
     function renderSetRow(s, ridx, sidx) {
         const saved = s.savedId ? `<span class="saved-badge">[ SAVED #${s.savedId} ]</span>`
-                                : `<button class="hud-btn success" data-action="save-set" data-ex-idx="${ridx}" data-set-idx="${sidx}">[ SAVE ]</button>`;
+                                : `<button class="hud-btn success" data-action="save-set" data-ex-idx="${ridx}" data-set-idx="${sidx}" aria-label="Log set ${s.set_index}">[ LOG ]</button>`;
         return `
-        <div class="set-row" data-set-row="${ridx}-${sidx}">
+        <div class="set-row" data-set-row="${ridx}-${sidx}" role="group" aria-label="Set ${s.set_index}">
             <div class="idx">${s.set_index}</div>
             <input class="hud-input" type="number" step="0.5" min="0" placeholder="KG"
+                inputmode="decimal" aria-label="Set ${s.set_index} weight in kilograms"
                 value="${s.weight !== '' && s.weight !== null && s.weight !== undefined ? s.weight : ''}"
                 data-field="weight" data-ex-idx="${ridx}" data-set-idx="${sidx}"
                 ${s.savedId ? 'disabled' : ''}/>
             <input class="hud-input" type="number" step="1" min="0" placeholder="REPS"
+                inputmode="numeric" aria-label="Set ${s.set_index} reps"
                 value="${s.reps !== '' && s.reps !== null && s.reps !== undefined ? s.reps : ''}"
                 data-field="reps" data-ex-idx="${ridx}" data-set-idx="${sidx}"
                 ${s.savedId ? 'disabled' : ''}/>
             <select class="hud-select" data-field="status" data-ex-idx="${ridx}" data-set-idx="${sidx}"
+                aria-label="Set ${s.set_index} type"
                 ${s.savedId ? 'disabled' : ''}>
                 ${['Warm-up','Completed','Failure'].map(o =>
                     `<option value="${o}" ${o === s.status ? 'selected' : ''}>${o.toUpperCase()}</option>`).join('')}
             </select>
             <div>${saved}</div>
             ${s.savedId
-              ? `<button class="hud-btn danger" data-action="delete-set" data-set-id="${s.savedId}" data-ex-idx="${ridx}" data-set-idx="${sidx}">[ DEL ]</button>`
-              : `<button class="hud-btn danger" data-action="drop-row" data-ex-idx="${ridx}" data-set-idx="${sidx}">[ - ]</button>`}
+              ? `<button class="hud-btn danger icon" data-action="delete-set" data-set-id="${s.savedId}" data-ex-idx="${ridx}" data-set-idx="${sidx}" aria-label="Delete saved set ${s.set_index}">[ DEL ]</button>`
+              : `<button class="hud-btn danger icon" data-action="drop-row" data-ex-idx="${ridx}" data-set-idx="${sidx}" aria-label="Remove set ${s.set_index} row">[ - ]</button>`}
         </div>
         `;
     }
