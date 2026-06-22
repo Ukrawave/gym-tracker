@@ -1,5 +1,10 @@
 .git/
 .gitignore
+# secrets / local creds — never bake into the image
+.env
+.env.local
+.garmin_tokens
+tests/
 .venv/
 __pycache__/
 *.pyc

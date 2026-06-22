@@ -22,6 +22,7 @@ from app.routes import progress as progress_routes
 from app.routes import records as records_routes
 from app.routes import sessions as sessions_routes
 from app.routes import sets as sets_routes
+from app.routes import sync as sync_routes
 
 APP_ROOT = Path(__file__).resolve().parent.parent
 STATIC_DIR = APP_ROOT / "static"
@@ -59,6 +60,7 @@ def create_app() -> FastAPI:
     app.include_router(sets_routes.router, prefix="/api", tags=["sets"])
     app.include_router(progress_routes.router, prefix="/api", tags=["progress"])
     app.include_router(records_routes.router, prefix="/api", tags=["records"])
+    app.include_router(sync_routes.router, prefix="/api", tags=["sync"])
 
     @app.get("/api/health", tags=["meta"])
     def health() -> Response:

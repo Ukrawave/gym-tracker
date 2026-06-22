@@ -64,6 +64,80 @@ CREATE TABLE IF NOT EXISTS personal_records (
 CREATE INDEX IF NOT EXISTS idx_set_entries_exercise_session ON set_entries(exercise_id, session_id);
 CREATE INDEX IF NOT EXISTS idx_set_entries_date_analytics ON set_entries(exercise_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_sessions_date ON sessions(date);
+
+-- ===================================================================
+-- Phase 0: Fitness Dashboard data foundation (ADDITIVE — do not modify
+-- the tables above). These hold Garmin + Strava data pulled by app/sync.py.
+-- All CREATE ... IF NOT EXISTS so a fresh clone boots cleanly and re-running
+-- init_schema() is idempotent.
+-- ===================================================================
+
+-- Unified activities feed. `id` is source-prefixed, e.g. 'garmin:123',
+-- 'strava:456', so the two sources never collide on the same PK.
+CREATE TABLE IF NOT EXISTS activities (
+    id TEXT PRIMARY KEY,
+    source TEXT,
+    type TEXT,
+    start_time TEXT,
+    duration_s INTEGER,
+    distance_m REAL,
+    avg_hr INTEGER,
+    elevation_m REAL,
+    calories INTEGER,
+    raw_json TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- One row per calendar day of Garmin wellness/training metrics.
+CREATE TABLE IF NOT EXISTS daily_wellness (
+    date TEXT PRIMARY KEY,
+    vo2max_running REAL,
+    resting_hr INTEGER,
+    hrv_overnight REAL,
+    body_battery_high INTEGER,
+    body_battery_low INTEGER,
+    stress_avg INTEGER,
+    training_readiness INTEGER,
+    training_load_acute REAL,
+    training_load_chronic REAL,
+    steps INTEGER,
+    raw_json TEXT
+);
+
+-- One row per night of sleep (keyed on the wake-up calendar date).
+CREATE TABLE IF NOT EXISTS sleep_nights (
+    date TEXT PRIMARY KEY,
+    duration_s INTEGER,
+    deep_s INTEGER,
+    light_s INTEGER,
+    rem_s INTEGER,
+    awake_s INTEGER,
+    sleep_score INTEGER,
+    raw_json TEXT
+);
+
+-- Nutrition is DEFERRED in garminconnect 0.3.6 (no food-diary getter); the
+-- table exists so the schema is forward-compatible (design spec §9.6).
+CREATE TABLE IF NOT EXISTS nutrition_days (
+    date TEXT PRIMARY KEY,
+    calories INTEGER,
+    protein_g REAL,
+    carbs_g REAL,
+    fat_g REAL,
+    raw_json TEXT
+);
+
+-- Per-source sync bookkeeping: last run, the incremental watermark, and the
+-- outcome so /api/sync/status and the next incremental run can read them.
+CREATE TABLE IF NOT EXISTS sync_state (
+    source TEXT PRIMARY KEY,
+    last_run_at TEXT,
+    last_watermark TEXT,
+    last_status TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_activities_start_time ON activities(start_time);
+CREATE INDEX IF NOT EXISTS idx_activities_source_type ON activities(source, type);
 """
 
 
