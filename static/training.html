@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0A0F14">
+    <title>GYM-OPS · Training</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/hud.css">
+</head>
+<body>
+    <header class="hud-topbar">
+        <span class="brand">[ GYM-OPS ]</span>
+        <nav>
+            <a href="/">DASHBOARD</a>
+            <a href="/exercises.html">CATALOG</a>
+            <a href="/logger.html">LOGGER</a>
+            <a href="/progress.html">PROGRESS</a>
+            <a href="/running.html">RUNNING</a>
+            <a href="/training.html" class="active">TRAINING</a>
+            <a href="/sleep.html">SLEEP</a>
+        </nav>
+        <div class="right">
+            <span><span class="led led-green led-pulse" id="db-led"></span>&nbsp;<span id="db-status-text">DB ONLINE</span></span>
+            <span id="clock-local">--</span>
+        </div>
+    </header>
+
+    <main class="page stack-lg">
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">[ GYM-OPS // LOAD &amp; RECOVERY ]</span>
+                <h1>Training</h1>
+            </div>
+            <div class="head-readout" id="train-meta">[ derived readiness ]</div>
+        </div>
+
+        <!-- Derived readiness LED panel -->
+        <section class="hud-panel" id="readiness-panel">
+            <div class="hud-panel-header">
+                <h2><span class="led led-cyan led-pulse" id="readiness-led"></span> Readiness</h2>
+                <span class="meta">Derived — Garmin readiness unavailable</span>
+            </div>
+            <div class="readiness-row">
+                <div class="readiness-state" id="readiness-state">—</div>
+                <div class="readiness-reason" id="readiness-reason">Computing…</div>
+            </div>
+        </section>
+
+        <!-- Readiness input KPIs -->
+        <section class="kpi-strip" aria-label="Readiness inputs">
+            <div class="kpi-tile accent-warn">
+                <div class="kpi-label">[ ACUTE LOAD ]</div>
+                <div class="kpi-value" id="train-acute">—</div>
+                <div class="kpi-sub" id="train-acute-base">vs baseline</div>
+            </div>
+            <div class="kpi-tile accent-info">
+                <div class="kpi-label">[ RESTING HR ]</div>
+                <div class="kpi-value" id="train-rhr">—</div>
+                <div class="kpi-sub" id="train-rhr-base">bpm vs baseline</div>
+            </div>
+            <div class="kpi-tile">
+                <div class="kpi-label">[ CHRONIC LOAD ]</div>
+                <div class="kpi-value" id="train-chronic">—</div>
+                <div class="kpi-sub">latest</div>
+            </div>
+        </section>
+
+        <div class="hud-panel">
+            <div class="hud-panel-header">
+                <h2><span class="led led-amber led-pulse"></span> Training load</h2>
+                <span class="meta">Acute vs chronic</span>
+            </div>
+            <div class="chart-wrap tall"><canvas id="chart-load"></canvas></div>
+        </div>
+
+        <div class="hud-panel">
+            <div class="hud-panel-header">
+                <h2>Resting heart rate</h2>
+                <span class="meta">Lower trend = better recovery</span>
+            </div>
+            <div class="chart-wrap"><canvas id="chart-rhr"></canvas></div>
+        </div>
+    </main>
+
+    <script src="/static/js/hud.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/training.js"></script>
+</body>
+</html>

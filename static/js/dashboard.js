@@ -163,4 +163,61 @@
             `<div class="no-data text-danger">[ DASHBOARD FETCH FAILED: ${e.message} ]</div>`,
         );
     }
+
+    // ---- Fitness Overview tiles (Phase 1, Garmin + Strava) -------------------
+    // Fetched independently so a fitness-data hiccup never blanks the core
+    // training dashboard above.
+    function fmtPace(sPerKm) {
+        if (sPerKm == null || !isFinite(sPerKm)) return '—';
+        const s = Math.round(sPerKm);
+        return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    }
+
+    function paintOverview(o) {
+        // VO2max
+        if (o.vo2max) {
+            $('ov-vo2max').textContent = o.vo2max.value;
+            $('ov-vo2max-date').textContent = `as of ${o.vo2max.date}`;
+        }
+        // Last run — distance + pace
+        if (o.last_run) {
+            const km = o.last_run.distance_m != null ? (o.last_run.distance_m / 1000).toFixed(2) : '—';
+            $('ov-run-dist').textContent = `${km} km`;
+            $('ov-run-pace').textContent = `${fmtPace(o.last_run.pace_s_per_km)}/km · ${o.last_run.date || ''}`;
+        }
+        // Resting HR (latest wellness reading)
+        if (o.resting_hr) {
+            $('ov-rhr').textContent = o.resting_hr.value != null ? o.resting_hr.value : '—';
+        }
+        // Body Battery high/low
+        if (o.body_battery) {
+            $('ov-battery').textContent = o.body_battery.high != null ? o.body_battery.high : '—';
+            $('ov-battery-date').textContent =
+                `high / low ${o.body_battery.low != null ? o.body_battery.low : '—'}`;
+        }
+        // Last sleep score
+        if (o.last_sleep) {
+            $('ov-sleep').textContent = o.last_sleep.score != null ? o.last_sleep.score : '—';
+            $('ov-sleep-date').textContent = o.last_sleep.date || 'last night';
+        }
+        // Data freshness LED: green if any source synced, amber if never.
+        const led = $('ov-fresh-led');
+        const sub = $('ov-fresh-sub');
+        const fresh = o.freshness || {};
+        if (fresh.last_sync) {
+            led.className = 'led led-green led-pulse';
+            sub.textContent = `synced ${hudUtil.formatTimestamp(fresh.last_sync)}`;
+        } else {
+            led.className = 'led led-amber';
+            sub.textContent = 'never synced';
+        }
+    }
+
+    try {
+        const o = await api.fitnessOverview();
+        paintOverview(o);
+    } catch (e) {
+        console.warn('fitness overview unavailable:', e.message);
+        // Leave the Overview tiles at their '—' placeholders; core dash is fine.
+    }
 })();

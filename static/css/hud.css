@@ -1161,3 +1161,30 @@ body {
 .dot-sep::after { content: ' · '; color: var(--border); margin: 0 6px; }
 .mt-2 { margin-top: var(--gap-2); }
 .mt-3 { margin-top: var(--gap-3); }
+
+/* =====================================================
+   FITNESS — DERIVED READINESS (Phase 1, Training page)
+   A single hero state (PUSH/HOLD/REST) + its derived rationale. Reuses the
+   identity colours via the .text-* helpers; this only owns layout + scale.
+   ===================================================== */
+.readiness-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-2);
+}
+@media (min-width: 640px) {
+    .readiness-row { flex-direction: row; align-items: baseline; gap: var(--gap-5); }
+}
+.readiness-state {
+    font-family: var(--font-hud);
+    font-size: var(--fs-2xl);
+    font-weight: 700;
+    letter-spacing: var(--track-chrome);
+    line-height: 1;
+    flex-shrink: 0;
+}
+.readiness-reason {
+    color: var(--muted);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
