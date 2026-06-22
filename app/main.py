@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from app.db import init_schema
 from app.routes import exercises as exercises_routes
 from app.routes import fitness as fitness_routes
+from app.routes import plan as plan_routes
 from app.routes import progress as progress_routes
 from app.routes import records as records_routes
 from app.routes import sessions as sessions_routes
@@ -63,6 +64,7 @@ def create_app() -> FastAPI:
     app.include_router(records_routes.router, prefix="/api", tags=["records"])
     app.include_router(sync_routes.router, prefix="/api", tags=["sync"])
     app.include_router(fitness_routes.router, prefix="/api", tags=["fitness"])
+    app.include_router(plan_routes.router, prefix="/api", tags=["plan"])
 
     @app.get("/api/health", tags=["meta"])
     def health() -> Response:
@@ -162,6 +164,10 @@ def create_app() -> FastAPI:
         @app.get("/sleep.html", include_in_schema=False)
         def sleep_page() -> FileResponse:
             return FileResponse(STATIC_DIR / "sleep.html")
+
+        @app.get("/plan.html", include_in_schema=False)
+        def plan_page() -> FileResponse:
+            return FileResponse(STATIC_DIR / "plan.html")
 
         # Mount full static dir for css/js/assets.
         app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
