@@ -1,0 +1,74 @@
+{
+  "_fixture_note": "Combined Garmin wellness payload shaped to match REAL garminconnect==0.3.6 responses (structure pinned against a live capture in Task 7; values fake/representative). Keys mirror the separate getters fetch_wellness() stitches: get_stats_and_body, get_hrv_data, get_training_readiness, get_rhr_day, get_body_battery, get_all_day_stress, get_training_status. NOTE: hrv + training_readiness are populated here to exercise those code paths; Hugo's own account does not record them (they come back empty live) and the normalizer returns None gracefully in that case.",
+  "date": "2026-06-20",
+  "stats_and_body": {
+    "calendarDate": "2026-06-20",
+    "totalSteps": 11432,
+    "totalKilocalories": 2680.0,
+    "restingHeartRate": 48,
+    "averageStressLevel": 34,
+    "maxStressLevel": 91,
+    "bodyBatteryHighestValue": 88,
+    "bodyBatteryLowestValue": 21
+  },
+  "hrv": {
+    "hrvSummary": {
+      "calendarDate": "2026-06-20",
+      "lastNightAvg": 68,
+      "weeklyAvg": 64,
+      "status": "BALANCED"
+    }
+  },
+  "training_readiness": [
+    {
+      "calendarDate": "2026-06-20",
+      "score": 81,
+      "level": "READY"
+    }
+  ],
+  "rhr": {
+    "calendarDate": "2026-06-20",
+    "restingHeartRate": 48
+  },
+  "body_battery": [
+    {
+      "date": "2026-06-20",
+      "charged": 88,
+      "drained": 60,
+      "bodyBatteryValuesArray": [
+        [
+          1718000000000,
+          88
+        ],
+        [
+          1718040000000,
+          21
+        ]
+      ]
+    }
+  ],
+  "all_day_stress": {
+    "calendarDate": "2026-06-20",
+    "avgStressLevel": 34,
+    "maxStressLevel": 91
+  },
+  "training_status": {
+    "calendarDate": "2026-06-20",
+    "mostRecentVO2Max": {
+      "generic": {
+        "calendarDate": "2026-06-20",
+        "vo2MaxValue": 52.0,
+        "vo2MaxPreciseValue": 51.6
+      }
+    },
+    "mostRecentTrainingLoadBalance": {
+      "metricsTrainingLoadBalanceDTOMap": {
+        "1234567890": {
+          "monthlyLoadAerobicLow": 412.0,
+          "monthlyLoadAerobicHigh": 388.0,
+          "monthlyLoadAnaerobic": 95.0
+        }
+      }
+    }
+  }
+}

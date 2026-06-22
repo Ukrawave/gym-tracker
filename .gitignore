@@ -33,3 +33,7 @@ data/*.db.bak-*
 
 # garmin auth token cache
 .garmin_tokens
+
+# phase0 delegation scratch (not part of the artifact)
+PHASE0_BRIEF.md
+GROUND_TRUTH.md
