@@ -166,6 +166,31 @@ CREATE TABLE IF NOT EXISTS body_weight (
     note TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ===================================================================
+-- Phase 3: Nutrition (ADDITIVE — do not modify the tables above).
+-- Garmin has NO food data for this account (probed live — see
+-- PHASE3_GROUND_TRUTH.md), so calories/macros IN are entered by hand and
+-- stored in the pre-existing `nutrition_days` table (created empty in
+-- Phase 0). That table is extended additively with two GUARDED ADD COLUMNs
+-- in init_schema() below (SQLite ALTER is not idempotent, so each is wrapped
+-- in a PRAGMA check): `source` (default 'manual', reserving 'garmin' for a
+-- future food-log sync with no migration) and `logged_at`.
+-- `nutrition_targets` is a single-row table (the CHECK pins it to id=1)
+-- holding the user's daily calorie/macro goals — goal-agnostic, set in the
+-- UI, mirroring `plan_config`. Calories-OUT is NOT stored here; it is read
+-- at request time from the already-synced daily_wellness.raw_json
+-- (stats_and_body.totalKilocalories). CREATE ... IF NOT EXISTS so a fresh
+-- clone boots cleanly and re-running init_schema() stays idempotent.
+-- ===================================================================
+CREATE TABLE IF NOT EXISTS nutrition_targets (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    target_calories INTEGER NOT NULL,
+    target_protein_g REAL NOT NULL,
+    target_carbs_g REAL NOT NULL,
+    target_fat_g REAL NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 
@@ -196,6 +221,18 @@ def init_schema() -> None:
     """Create tables/indexes if not present. Idempotent."""
     with db_conn() as conn:
         conn.executescript(SCHEMA_SQL)
+        # Phase 3 (Nutrition): additively extend the pre-existing nutrition_days
+        # table. SQLite has no `ADD COLUMN IF NOT EXISTS`, so guard each ALTER
+        # with a PRAGMA check — this keeps init_schema() safe to re-run on every
+        # boot (it runs on startup) without tripping a "duplicate column" error.
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(nutrition_days)")}
+        if "source" not in cols:
+            conn.execute(
+                "ALTER TABLE nutrition_days ADD COLUMN source TEXT NOT NULL "
+                "DEFAULT 'manual'"
+            )
+        if "logged_at" not in cols:
+            conn.execute("ALTER TABLE nutrition_days ADD COLUMN logged_at TIMESTAMP")
 
 
 # Brzycki est-1RM helper used by the PR re-evaluation code.

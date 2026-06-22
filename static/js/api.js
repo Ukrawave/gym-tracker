@@ -61,4 +61,11 @@ window.api = {
     savePlanConfig:       (body)                 => request('POST',   `/plan/config`, body),
     logWeight:            (body)                 => request('POST',   `/plan/weight`, body),
     deleteWeight:         (date)                 => request('DELETE', `/plan/weight/${encodeURIComponent(date)}`),
+
+    // Phase 3 — Nutrition. Manual intake vs user-set targets; calories-OUT is
+    // read server-side from already-synced Garmin wellness (no food sync).
+    getNutrition:         ()                     => request('GET',    `/nutrition`),
+    saveNutritionTargets: (body)                 => request('POST',   `/nutrition/targets`, body),
+    logNutrition:         (body)                 => request('POST',   `/nutrition/log`, body),
+    deleteNutrition:      (date)                 => request('DELETE', `/nutrition/log/${encodeURIComponent(date)}`),
 };
