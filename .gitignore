@@ -37,3 +37,5 @@ data/*.db.bak-*
 # phase0 delegation scratch (not part of the artifact)
 PHASE0_BRIEF.md
 GROUND_TRUTH.md
+PHASE1_GROUND_TRUTH.md
+PHASE1_BRIEF.md

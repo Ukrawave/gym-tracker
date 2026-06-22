@@ -47,4 +47,11 @@ window.api = {
 
     progressForExercise:  (id)                   => request('GET',  `/progress/exercise/${id}`),
     dashboard:            ()                     => request('GET',  `/dashboard`),
+
+    // Phase 1 — fitness dashboard (Garmin + Strava), read-only.
+    syncStatus:           ()                     => request('GET',  `/sync/status`),
+    fitnessOverview:      ()                     => request('GET',  `/fitness/overview`),
+    fitnessRunning:       ()                     => request('GET',  `/fitness/running`),
+    fitnessTraining:      ()                     => request('GET',  `/fitness/training`),
+    fitnessSleep:         ()                     => request('GET',  `/fitness/sleep`),
 };

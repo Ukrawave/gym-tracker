@@ -17,6 +17,9 @@
             <a href="/exercises.html">CATALOG</a>
             <a href="/logger.html">LOGGER</a>
             <a href="/progress.html">PROGRESS</a>
+            <a href="/running.html">RUNNING</a>
+            <a href="/training.html">TRAINING</a>
+            <a href="/sleep.html">SLEEP</a>
         </nav>
         <div class="right">
             <span><span class="led led-green led-pulse" id="db-led"></span>&nbsp;<span id="db-status-text">DB ONLINE</span></span>
@@ -77,6 +80,41 @@
                 <div class="kpi-label">Reps</div>
                 <div class="kpi-value" id="tel-total-reps">—</div>
                 <div class="kpi-sub">Total</div>
+            </div>
+        </section>
+
+        <!-- Fitness Overview KPI strip (Phase 1) — Garmin + Strava telemetry.
+             Additive: sits below the training telemetry, above the charts. -->
+        <section class="kpi-strip" aria-label="Fitness overview">
+            <div class="kpi-tile accent-green">
+                <div class="kpi-label">[ VO2MAX ]</div>
+                <div class="kpi-value" id="ov-vo2max">—</div>
+                <div class="kpi-sub" id="ov-vo2max-date">ml/kg/min</div>
+            </div>
+            <div class="kpi-tile accent-info">
+                <div class="kpi-label">[ LAST RUN ]</div>
+                <div class="kpi-value" id="ov-run-dist">—</div>
+                <div class="kpi-sub" id="ov-run-pace">distance · pace</div>
+            </div>
+            <div class="kpi-tile">
+                <div class="kpi-label">[ BODY BATTERY ]</div>
+                <div class="kpi-value" id="ov-battery">—</div>
+                <div class="kpi-sub" id="ov-battery-date">high / low</div>
+            </div>
+            <div class="kpi-tile">
+                <div class="kpi-label">[ SLEEP SCORE ]</div>
+                <div class="kpi-value" id="ov-sleep">—</div>
+                <div class="kpi-sub" id="ov-sleep-date">last night</div>
+            </div>
+            <div class="kpi-tile">
+                <div class="kpi-label">[ RESTING HR ]</div>
+                <div class="kpi-value" id="ov-rhr">—</div>
+                <div class="kpi-sub">bpm</div>
+            </div>
+            <div class="kpi-tile accent-warn">
+                <div class="kpi-label">[ DATA FRESHNESS ]</div>
+                <div class="kpi-value" id="ov-fresh"><span class="led led-amber" id="ov-fresh-led"></span></div>
+                <div class="kpi-sub" id="ov-fresh-sub">sync status</div>
             </div>
         </section>
 
