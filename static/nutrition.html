@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0A0F14">
+    <title>GYM-OPS · Nutrition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="/static/css/hud.css">
+</head>
+<body>
+    <header class="hud-topbar">
+        <span class="brand">[ GYM-OPS ]</span>
+        <nav>
+            <a href="/">DASHBOARD</a>
+            <a href="/exercises.html">CATALOG</a>
+            <a href="/logger.html">LOGGER</a>
+            <a href="/progress.html">PROGRESS</a>
+            <a href="/running.html">RUNNING</a>
+            <a href="/training.html">TRAINING</a>
+            <a href="/sleep.html">SLEEP</a>
+            <a href="/nutrition.html" class="active">NUTRITION</a>
+            <a href="/plan.html">PLAN</a>
+        </nav>
+        <div class="right">
+            <span><span class="led led-green led-pulse" id="db-led"></span>&nbsp;<span id="db-status-text">DB ONLINE</span></span>
+            <span id="clock-local">--</span>
+        </div>
+    </header>
+
+    <main class="page stack-lg">
+        <div class="page-head">
+            <div>
+                <span class="eyebrow">[ GYM-OPS // NUTRITION ]</span>
+                <h1>Nutrition</h1>
+            </div>
+            <div class="head-readout" id="nutrition-meta">[ intake vs target ]</div>
+        </div>
+
+        <!-- ================= EMPTY STATE ================= -->
+        <!-- Shown when GET /api/nutrition -> {configured:false}: a clean setup
+             CTA, never empty cards. The targets form below is the call to action. -->
+        <section id="empty-state" class="hidden">
+            <div class="no-data" style="margin-bottom: var(--gap-5);">
+                [ NO TARGETS CONFIGURED ]<br>
+                Set your daily calorie &amp; macro targets to start tracking intake
+                vs. goal. Calories-out comes from Garmin automatically &mdash; you
+                log what goes in.
+            </div>
+        </section>
+
+        <!-- ================= CONFIGURED VIEW ================= -->
+        <section id="nutrition-view" class="hidden stack-lg">
+
+            <!-- KPI strip: streak + calories in/out/net + adherence -->
+            <section class="kpi-strip" aria-label="Nutrition summary">
+                <div class="kpi-tile accent-green">
+                    <div class="kpi-label">[ STREAK ]</div>
+                    <div class="streak-hero">
+                        <span class="streak-num" id="kpi-streak">0</span>
+                        <span class="streak-unit" id="kpi-streak-unit">days</span>
+                    </div>
+                    <div class="kpi-sub">consecutive logged</div>
+                </div>
+                <div class="kpi-tile accent-info">
+                    <div class="kpi-label">[ CALORIES IN ]</div>
+                    <div class="kpi-value" id="kpi-cal-in">&mdash;</div>
+                    <div class="kpi-sub" id="kpi-cal-in-sub">of target</div>
+                </div>
+                <div class="kpi-tile accent-warn">
+                    <div class="kpi-label">[ CALORIES OUT ]</div>
+                    <div class="kpi-value" id="kpi-cal-out">&mdash;</div>
+                    <div class="kpi-sub">Garmin burned</div>
+                </div>
+                <div class="kpi-tile">
+                    <div class="kpi-label">[ NET ]</div>
+                    <div class="kpi-value" id="kpi-net">&mdash;</div>
+                    <div class="kpi-sub">in &minus; out</div>
+                </div>
+                <div class="kpi-tile">
+                    <div class="kpi-label">[ ADHERENCE ]</div>
+                    <div class="kpi-value" id="kpi-adherence">&mdash;</div>
+                    <div class="kpi-sub">of calorie target</div>
+                </div>
+                <div class="kpi-tile">
+                    <div class="kpi-label">[ TODAY ]</div>
+                    <div class="kpi-value" id="kpi-today-date">&mdash;</div>
+                    <div class="kpi-sub" id="kpi-today-source">manual</div>
+                </div>
+            </section>
+
+            <div class="grid grid-2">
+                <!-- Today vs target: macro meters -->
+                <section class="hud-panel">
+                    <div class="hud-panel-header">
+                        <h2><span class="led led-green led-pulse"></span> Today vs target</h2>
+                        <span class="meta">Calories + macros</span>
+                    </div>
+                    <div id="macro-meters" class="mt-2">
+                        <div class="macro-meter">
+                            <div class="macro-meter-head">
+                                <span>Calories</span>
+                                <span class="macro-val"><span id="m-cal-now">0</span> / <span id="m-cal-tgt">0</span></span>
+                            </div>
+                            <div class="macro-track"><div class="macro-fill cal" id="m-cal-bar"></div></div>
+                        </div>
+                        <div class="macro-meter">
+                            <div class="macro-meter-head">
+                                <span>Protein (g)</span>
+                                <span class="macro-val"><span id="m-prot-now">0</span> / <span id="m-prot-tgt">0</span></span>
+                            </div>
+                            <div class="macro-track"><div class="macro-fill prot" id="m-prot-bar"></div></div>
+                        </div>
+                        <div class="macro-meter">
+                            <div class="macro-meter-head">
+                                <span>Carbs (g)</span>
+                                <span class="macro-val"><span id="m-carb-now">0</span> / <span id="m-carb-tgt">0</span></span>
+                            </div>
+                            <div class="macro-track"><div class="macro-fill carb" id="m-carb-bar"></div></div>
+                        </div>
+                        <div class="macro-meter">
+                            <div class="macro-meter-head">
+                                <span>Fat (g)</span>
+                                <span class="macro-val"><span id="m-fat-now">0</span> / <span id="m-fat-tgt">0</span></span>
+                            </div>
+                            <div class="macro-track"><div class="macro-fill fat" id="m-fat-bar"></div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick intake log -->
+                <section class="hud-panel">
+                    <div class="hud-panel-header">
+                        <h2><span class="led led-cyan led-pulse"></span> Log intake</h2>
+                        <span class="meta">Manual &middot; upsert by date</span>
+                    </div>
+                    <div class="col">
+                        <div class="grid grid-2">
+                            <div class="field">
+                                <label class="field-label" for="log-date">[ Date ]</label>
+                                <input id="log-date" class="hud-input" type="date" />
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="log-calories">[ Calories ]</label>
+                                <input id="log-calories" class="hud-input" type="number"
+                                       inputmode="numeric" step="1" min="0" max="30000" placeholder="0" />
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="log-protein">[ Protein (g) ]</label>
+                                <input id="log-protein" class="hud-input" type="number"
+                                       inputmode="decimal" step="0.1" min="0" max="5000" placeholder="0" />
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="log-carbs">[ Carbs (g) ]</label>
+                                <input id="log-carbs" class="hud-input" type="number"
+                                       inputmode="decimal" step="0.1" min="0" max="5000" placeholder="0" />
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="log-fat">[ Fat (g) ]</label>
+                                <input id="log-fat" class="hud-input" type="number"
+                                       inputmode="decimal" step="0.1" min="0" max="5000" placeholder="0" />
+                            </div>
+                            <div class="field" style="justify-content: flex-end;">
+                                <button id="log-btn" class="hud-btn success">[ LOG INTAKE ]</button>
+                            </div>
+                        </div>
+                        <span id="log-status" class="text-muted text-sm"></span>
+                    </div>
+                </section>
+            </div>
+
+            <!-- History: intake vs out vs net trend -->
+            <div class="hud-panel">
+                <div class="hud-panel-header">
+                    <h2><span class="led led-cyan led-pulse"></span> History &mdash; in vs out vs net</h2>
+                    <span class="meta">Recent logged days</span>
+                </div>
+                <div class="chart-wrap tall"><canvas id="chart-history"></canvas></div>
+            </div>
+
+            <!-- Recent log table (with delete) -->
+            <section class="hud-panel">
+                <div class="hud-panel-header">
+                    <h2>Recent log</h2>
+                    <span class="meta">Newest first</span>
+                </div>
+                <div id="history-table"></div>
+            </section>
+        </section>
+
+        <!-- ================= TARGETS CONFIG FORM (both states) ================= -->
+        <section class="hud-panel" id="targets-panel">
+            <div class="hud-panel-header">
+                <h2><span class="led led-amber led-pulse"></span> Daily targets</h2>
+                <span class="meta" id="targets-meta">Set / update your goals</span>
+            </div>
+            <div class="col">
+                <div class="grid grid-4">
+                    <div class="field">
+                        <label class="field-label" for="tgt-calories">[ Calories ]</label>
+                        <input id="tgt-calories" class="hud-input" type="number"
+                               inputmode="numeric" step="1" min="0" max="20000" placeholder="0" />
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="tgt-protein">[ Protein (g) ]</label>
+                        <input id="tgt-protein" class="hud-input" type="number"
+                               inputmode="decimal" step="1" min="0" max="2000" placeholder="0" />
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="tgt-carbs">[ Carbs (g) ]</label>
+                        <input id="tgt-carbs" class="hud-input" type="number"
+                               inputmode="decimal" step="1" min="0" max="2000" placeholder="0" />
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="tgt-fat">[ Fat (g) ]</label>
+                        <input id="tgt-fat" class="hud-input" type="number"
+                               inputmode="decimal" step="1" min="0" max="2000" placeholder="0" />
+                    </div>
+                </div>
+                <div class="row">
+                    <button id="save-targets-btn" class="hud-btn">[ SAVE TARGETS ]</button>
+                    <span id="targets-status" class="text-muted text-sm"></span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/js/hud.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/nutrition.js"></script>
+</body>
+</html>
