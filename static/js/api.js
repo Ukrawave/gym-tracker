@@ -54,4 +54,11 @@ window.api = {
     fitnessRunning:       ()                     => request('GET',  `/fitness/running`),
     fitnessTraining:      ()                     => request('GET',  `/fitness/training`),
     fitnessSleep:         ()                     => request('GET',  `/fitness/sleep`),
+
+    // Phase 2 — The Plan (24-week glide-path). First write endpoints beyond
+    // the gym logger: config + manual weigh-in log.
+    getPlan:              ()                     => request('GET',    `/plan`),
+    savePlanConfig:       (body)                 => request('POST',   `/plan/config`, body),
+    logWeight:            (body)                 => request('POST',   `/plan/weight`, body),
+    deleteWeight:         (date)                 => request('DELETE', `/plan/weight/${encodeURIComponent(date)}`),
 };

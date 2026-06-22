@@ -138,6 +138,34 @@ CREATE TABLE IF NOT EXISTS sync_state (
 
 CREATE INDEX IF NOT EXISTS idx_activities_start_time ON activities(start_time);
 CREATE INDEX IF NOT EXISTS idx_activities_source_type ON activities(source, type);
+
+-- ===================================================================
+-- Phase 2: The Plan — a goal-agnostic 24-week glide-path (ADDITIVE — do
+-- not modify the tables above). `plan_config` is a single-row table (the
+-- CHECK pins it to id=1) holding the user's start/target/horizon/phases;
+-- `body_weight` is the manually-entered weigh-in log (Garmin has no weight
+-- data for this account — see PHASE2_GROUND_TRUTH.md). The `source` column
+-- defaults to 'manual' and reserves 'garmin' so a future smart-scale sync
+-- can backfill with no schema change. Both CREATE ... IF NOT EXISTS so a
+-- fresh clone boots cleanly and re-running init_schema() stays idempotent.
+-- ===================================================================
+CREATE TABLE IF NOT EXISTS plan_config (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    start_date TEXT NOT NULL,
+    horizon_weeks INTEGER NOT NULL DEFAULT 24,
+    start_weight REAL NOT NULL,
+    target_weight REAL NOT NULL,
+    phases_json TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS body_weight (
+    date TEXT PRIMARY KEY,
+    weight_kg REAL NOT NULL,
+    source TEXT NOT NULL DEFAULT 'manual',
+    note TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 """
 
 
